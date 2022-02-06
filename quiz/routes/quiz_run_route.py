@@ -6,7 +6,7 @@ from quiz.db_models import *
 from quiz.utils import *
 import random
 
-num_quiz_questions = 10
+num_quiz_questions = 5
 quiz_question_id_lst = []
 quiz_answer_lst = []
 quiz_qn_lst = []
@@ -26,6 +26,7 @@ def run_quiz():
         return redirect(url_for('run_quiz'))
 
     if quiz_qn_lst:
+        print('len(quiz_qn_lst):', len(quiz_qn_lst))
         for question in quiz_qn_lst:
             if question.question_type == 'Fill-In-The Blank':   # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer' column in DB
                 quiz_answer_lst.append(question.other_answer)
@@ -57,14 +58,13 @@ def start_quiz():
 
     if request.method == 'POST':
         questions = Questions.query.order_by(Questions.id)
-        quiz_qn_lst_all = []
-        for qn in questions:
+        for num, qn in enumerate(questions, 1):
             if qn.active_flag == 'Active':
-                quiz_qn_lst_all.append(qn)
-        random.shuffle(quiz_qn_lst_all)
-        global quiz_qn_lst
-        quiz_qn_lst = quiz_qn_lst_all[:num_quiz_questions]
-        #print('len(quiz_qn_lst):',len(quiz_qn_lst), 'len(quiz_qn_lst_all):', len(quiz_qn_lst_all))
+                quiz_qn_lst.append(qn)
+            if num == num_quiz_questions:
+                break
+        random.shuffle(quiz_qn_lst)
+
         return redirect(url_for('run_quiz'))
 
     return render_template("start_quiz.html")
