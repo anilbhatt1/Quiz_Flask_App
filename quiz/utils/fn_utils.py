@@ -8,7 +8,6 @@ from collections import namedtuple
 
 answer_types = ['image1', 'image2', 'image3', 'image4', 'image5', 'other',
                 'choice1', 'choice2', 'choice3', 'choice4', 'choice5']
-quiz_answer_lst = []
 quiz_response_lst = []
 quiz_score_lst = []
 quiz_possible_score_lst = []

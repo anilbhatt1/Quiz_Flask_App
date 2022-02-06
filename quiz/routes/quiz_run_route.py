@@ -8,6 +8,8 @@ import random
 
 num_quiz_questions = 10
 quiz_question_id_lst = []
+quiz_answer_lst = []
+quiz_qn_lst = []
 
 # Start the quiz and get questions one-by-one
 @app.route('/run-quiz', methods=['GET','POST'])
@@ -62,7 +64,7 @@ def start_quiz():
         random.shuffle(quiz_qn_lst_all)
         global quiz_qn_lst
         quiz_qn_lst = quiz_qn_lst_all[:num_quiz_questions]
-        print('len(quiz_qn_lst):',len(quiz_qn_lst), 'len(quiz_qn_lst_all):', len(quiz_qn_lst_all))
+        #print('len(quiz_qn_lst):',len(quiz_qn_lst), 'len(quiz_qn_lst_all):', len(quiz_qn_lst_all))
         return redirect(url_for('run_quiz'))
 
     return render_template("start_quiz.html")
