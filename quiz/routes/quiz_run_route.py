@@ -9,6 +9,7 @@ import random
 num_quiz_questions = 5
 quiz_question_id_lst = []
 quiz_answer_lst = []
+quiz_response_lst = []
 quiz_qn_lst = []
 
 # Start the quiz and get questions one-by-one
@@ -45,6 +46,9 @@ def run_quiz():
                                    oth_form=oth_form,
                                    )
     else:
+        print('len(quiz_qn_lst):', len(quiz_qn_lst))
+        print('len(quiz_answer_lst):', len(quiz_answer_lst))
+        print('len(quiz_response_lst):', len(quiz_response_lst))
         quiz_score, quiz_total = calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst, current_user.id)
         flash('Quiz completed successfully !')
         return render_template("quiz_score.html",

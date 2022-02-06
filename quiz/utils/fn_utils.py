@@ -8,9 +8,9 @@ from collections import namedtuple
 
 answer_types = ['image1', 'image2', 'image3', 'image4', 'image5', 'other',
                 'choice1', 'choice2', 'choice3', 'choice4', 'choice5']
-quiz_response_lst = []
 quiz_score_lst = []
 quiz_possible_score_lst = []
+quiz_response_lst = []
 answer_map_dict = {'image1':1, 'image2':2, 'image3':3, 'image4':4, 'image5':5, 'other':'other',
                    'choice1':1, 'choice2':2, 'choice3':3, 'choice4':4, 'choice5':5,
                    'option1':1, 'option2':2, 'option3':3, 'option4':4, 'option5':5}
