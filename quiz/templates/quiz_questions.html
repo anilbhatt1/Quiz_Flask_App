@@ -1,0 +1,50 @@
+{% extends 'base_quiz.html' %}
+
+{% block content %}
+
+        <div class="shadow-none p-3 mb-5 bg-light rounded">
+            <form method="POST">
+            <strong>{{question.question | safe }}</strong><br>
+            {% if question.question_type == 'text qn - image answer' %}
+                {% for item, image in image_choices %}
+                    {% if image == 'default.jpg' %}
+                       <strong> Pic Not Uploaded </strong><br/><br/><br/>
+                    {% else %}
+                       <strong> {{item}} </strong>
+                       <img src="{{url_for('static', filename='images/' + image)}}" width="75" align="middle"><br/><br/><br/><br/>
+                    {% endif %}
+                {% endfor %}
+                <input type="radio" name="options" id="option1" value="option1" required> Image A </input><br><br>
+                <input type="radio" name="options" id="option2" value="option2" required> Image B </input><br><br>
+                <input type="radio" name="options" id="option3" value="option3" required> Image C </input><br><br>
+                <input type="radio" name="options" id="option4" value="option4" required> Image D </input><br><br>
+                <input type="radio" name="options" id="option5" value="option5" required> Image E </input><br><br>
+            {% elif question.question_type == 'image qn - text answer' %}
+                {% for item, image in image_choices %}
+                    {% if item == 'A' %}
+                       <strong> {{item}} </strong>
+                       <img src="{{url_for('static', filename='images/' + image)}}" width="75" align="middle"><br/><br/><br/><br/>
+                    {% endif %}
+                {% endfor %}
+                <input type="radio" name="options" id="option1" value="option1" required> {{question.choice1}} </input><br><br>
+                <input type="radio" name="options" id="option2" value="option2" required> {{question.choice2}} </input><br><br>
+                <input type="radio" name="options" id="option3" value="option3" required> {{question.choice3}} </input><br><br>
+                <input type="radio" name="options" id="option4" value="option4" required> {{question.choice4}} </input><br><br>
+                <input type="radio" name="options" id="option5" value="option5" required> {{question.choice5}} </input><br><br>
+            {% elif question.question_type == 'multiple-choice' %}
+                <input type="radio" name="options" id="option1" value="option1" required> {{question.choice1}} </input><br><br>
+                <input type="radio" name="options" id="option2" value="option2" required> {{question.choice2}} </input><br><br>
+                <input type="radio" name="options" id="option3" value="option3" required> {{question.choice3}} </input><br><br>
+                <input type="radio" name="options" id="option4" value="option4" required> {{question.choice4}} </input><br><br>
+                <input type="radio" name="options" id="option5" value="option5" required> {{question.choice5}} </input><br><br>
+            {% elif question.question_type == 'Fill-In-The Blank' %}
+                {{ oth_form.oth_answer.label(class="form-label") }}
+                {{ oth_form.oth_answer(class="form-control") }}
+            {% else %}
+                <h3> Other type </h3>
+            {% endif %}
+            <input type="submit" value="Next">
+            </form>
+        </div>
+{% endblock %}
+

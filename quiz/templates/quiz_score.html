@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+    {% endfor %}
+    <br>
+    <h2> Start Quiz </h2>
+    <br>
+    <div class="shadow-none p-3 mb-5 bg-light rounded">
+         <form method="POST" enctype="multipart/form-data">
+              <strong> Your score is {{quiz_score}} / {{quiz_total}} </strong>
+              <br>
+              <br/>
+              <a href="{{url_for("index")}}" class="btn btn-secondary"> Back to Home </a>
+              <a href="{{url_for("quiz_show_logs")}}" class="btn btn-secondary"> View Attempt Details </a>
+         </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base_quiz.html' %}
+
+{% block content %}
+
+        <div class="shadow-none p-3 mb-5 bg-light rounded">
+            <form method="POST">
+            <strong>{{qn.qn | safe }}</strong><br><br>
+            {% if qn.qn_type == 'radio' %}
+                {% for choice in answer_lst %}
+                    <input type="radio" name="options" id1={{ choice }} value={{ choice }} required> {{choice}} </input><br><br>
+                {% endfor %}
+            {% elif qn.qn_type == 'radio-text' %}
+                {% for choice in answer_lst %}
+                    <input type="radio" name="options" id1={{ choice }} value={{ choice }} required> {{choice}} </input><br><br>
+                {% endfor %}
+                {{ oth_form.oth_answer.label(class="form-label") }}
+                {{ oth_form.oth_answer(class="form-control") }}
+            {% elif qn.qn_type == 'text' %}
+                {{ oth_form.oth_answer.label(class="form-label") }}
+                {{ oth_form.oth_answer(class="form-control") }}
+            {% endif %}
+            <br>
+            <input type="submit" value="Next">
+            </form>
+        </div>
+{% endblock %}

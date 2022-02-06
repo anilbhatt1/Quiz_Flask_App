@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+    {% endfor %}
+
+    {% if name %}
+        <h1> Record Updated !</h1>
+        <br/>
+        <!--- https://getbootstrap.com/ -> content -> Tables --->
+        <table class="table table-hover table-bordered table-striped">
+        {% for our_user in our_users %}
+            <tr>
+                <td>{{our_user.id}} : {{our_user.name}} - {{our_user.email}} - {{our_user.role}}</td>
+            </tr>
+        {% endfor %}
+        </table>
+        <br/><br/>
+    {% else %}
+        <h1>Update User:</h1>
+        <br/>
+
+        <!--- https://getbootstrap.com/ -> utilities -> Shadows --->
+        <div class="shadow-none p-3 mb-5 bg-light rounded">
+                <!--form and name_to_update is getting passed from hello.py while we call render_template('update.html') -->
+                <!--The action attribute specifies where to send the form-data when a form is submitted. -->
+                <form action="/update/{{name_to_update.id}}" method="POST">
+                    {{ form.hidden_tag() }}
+
+                    {{ form.name.label(class="form-label") }}
+                    {{ form.name(class="form-control", value=name_to_update.name) }}
+                    <br/>
+                    {{ form.username.label(class="form-label") }}
+                    {{ form.username(class="form-control", value=name_to_update.username) }}
+                    <br/>
+                    {{ form.email.label(class="form-label") }}
+                    {{ form.email(class="form-control", value=name_to_update.email) }}
+                    <br/>
+                    {{ form.role.label(class="form-label") }}
+                    {{ form.role(class="form-control", value=name_to_update.role) }}
+                    <br/>
+                    <!--- https://getbootstrap.com/docs/5.1/components/buttons/ -->
+                    {{ form.submit(class="btn btn-secondary") }}
+                    {% if current_user.role == 'admin' %}
+                        <a href="{{url_for('delete', id=id)}}" class="btn btn-danger">Delete</a>
+                    {% endif %}
+                </form>
+        </div>
+    {% endif %}
+
+{% endblock %}

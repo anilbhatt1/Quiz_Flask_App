@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+    {% endfor %}
+
+    {% if current_user.is_authenticated %}
+        <h1>Create Question </h1>
+        <br/>
+        <!--- https://getbootstrap.com/ -> utilities -> Shadows --->
+        <div class="shadow-none p-3 mb-5 bg-light rounded">
+             <form method="POST" enctype="multipart/form-data">
+                  {{ form.hidden_tag() }}
+
+                  {{ form.question.label(class="form-label") }}
+                  {{ form.question(class="form-control", rows="10") }}
+                  <br/>
+                  {{ form.question_type.label(class="form-label") }}
+                  <br/>
+                  <select class="browser-default custom-select" name= question_type method="POST" action="/" >
+                      {% for question_type in qn_types %}
+                           type
+                           <option value="{{question_type}}" SELECTED>{{question_type}}</option>"
+                      {% endfor %}
+                  </select>
+                  <br/>
+                  <br/>
+                  {{ form.question_category.label(class="form-label") }}
+                  <br/>
+                  <select class="browser-default custom-select" name= question_category method="POST" action="/" >
+                      {% for question_category in qn_categories %}
+                           type
+                           <option value="{{question_category}}" SELECTED>{{question_category}}</option>"
+                      {% endfor %}
+                  </select>
+                  <br/>
+                  <br/>
+                  {{ form.choice1.label(class="form-label") }}
+                  {{ form.choice1(class="form-control") }}
+                  <br/>
+                  {{ form.choice2.label(class="form-label") }}
+                  {{ form.choice2(class="form-control") }}
+                  <br/>
+                  {{ form.choice3.label(class="form-label") }}
+                  {{ form.choice3(class="form-control") }}
+                  <br/>
+                  {{ form.choice4.label(class="form-label") }}
+                  {{ form.choice4(class="form-control") }}
+                  <br/>
+                  {{ form.choice5.label(class="form-label") }}
+                  {{ form.choice5(class="form-control") }}
+                  <br/>
+                  <div class="form-group">
+                       {{ form.image1.label }}
+                       {{ form.image1(class="form-control-file") }}
+                       <em> Allowed Formats - JPG/JPEG/PNG </em>
+                       {% if form.image1.errors %}
+                            {% for error in form.image1.errors %}
+                                <span class="text-danger">{{error}}</span><br>
+                            {% endfor %}
+                       {% endif %}
+                  </div>
+                  <br/>
+                  <div class="form-group">
+                       {{ form.image2.label }}
+                       {{ form.image2(class="form-control-file") }}
+                       <em> Allowed Formats - JPG/JPEG/PNG </em>
+                       {% if form.image2.errors %}
+                            {% for error in form.image2.errors %}
+                                <span class="text-danger">{{error}}</span><br>
+                            {% endfor %}
+                       {% endif %}
+                  </div>
+                  <br/>
+                  <div class="form-group">
+                       {{ form.image3.label }}
+                       {{ form.image3(class="form-control-file") }}
+                       <em> Allowed Formats - JPG/JPEG/PNG </em>
+                       {% if form.image3.errors %}
+                            {% for error in form.image2.errors %}
+                                <span class="text-danger">{{error}}</span><br>
+                            {% endfor %}
+                       {% endif %}
+                  </div>
+                  <br/>
+                  <div class="form-group">
+                       {{ form.image4.label }}
+                       {{ form.image4(class="form-control-file") }}
+                       <em> Allowed Formats - JPG/JPEG/PNG </em>
+                       {% if form.image4.errors %}
+                            {% for error in form.image4.errors %}
+                                <span class="text-danger">{{error}}</span><br>
+                            {% endfor %}
+                       {% endif %}
+                  </div>
+                  <br/>
+                  <div class="form-group">
+                       {{ form.image5.label }}
+                       {{ form.image5(class="form-control-file") }}
+                       <em> Allowed Formats - JPG/JPEG/PNG </em>
+                       {% if form.image5.errors %}
+                            {% for error in form.image5.errors %}
+                                <span class="text-danger">{{error}}</span><br>
+                            {% endfor %}
+                       {% endif %}
+                  </div>
+                  <br/>
+                  {{ form.answer.label(class="form-label") }}
+                  <br/>
+                  <select class="browser-default custom-select" name= answer method="POST" action="/" >
+                      {% for answer in answer_types %}
+                           type
+                           <option value="{{answer}}" SELECTED>{{answer}}</option>"
+                      {% endfor %}
+                  </select>
+                  <br/>
+                  <br/>
+                  {{ form.other_answer.label(class="form-label") }}
+                  <br/>
+                  {{ form.other_answer(class="form-control", rows="10") }}
+                  <br/>
+                  <br/>
+                  <br/>
+                  {{ form.submit(class="btn btn-secondary") }}
+             </form>
+
+            {{ ckeditor.load() }}
+            {{ ckeditor.config(name='content') }}
+        </div>
+
+    {% else %}
+        <h2> You must be logged in to add blog posts </h2>
+        <a href = "{{ url_for('login') }}">Login Here</a>
+
+    {% endif %}
+{% endblock %}

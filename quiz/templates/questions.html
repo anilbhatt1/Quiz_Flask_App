@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message | safe }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+    {% endfor %}
+
+
+    <h1> Questions </h1><br/>
+
+    {% for question in questions %}
+        <div class="shadow-none p-3 mb-5 bg-light rounded">
+            <h3><a href="{{url_for('question', id=question.id)}}"> {{ question.question[:100] | safe }} </a></h3><br/>
+            <small>Written By : {{ question.qn_creator.name }}<br/>
+                   Question ID : {{ question.id }}<br>
+                   Question Type :  {{ question.question_type }}<br/>
+                   Question Category : {{ question.question_category }}<br/>
+                   Active Flag : {{ question.active_flag }}<br>
+                   Date Written : {{ question.date_added }}<br/>
+                   Answer :  {{question.answer}}</small><br/><br/>
+            {% if question.answer == 'other' %}
+                <small>Other_answer : {{ question.other_answer | safe }}</small><br/>
+            {% endif %}
+
+            <a href="{{url_for('question', id=question.id)}}" class="btn btn-secondary btn-sm"> View Question </a>
+
+            {% if question.qn_creator_id == current_user.id or current_user.role == 'admin' %}
+
+                <a href="{{ url_for('edit_question', id=question.id)}}" class="btn btn-outline-secondary btn-sm">Edit Question</a>
+
+            {% endif %}
+
+            {% if current_user.role == 'admin'%}
+
+                {% if question.active_flag == 'Active' %}
+
+                    <a href="{{ url_for('deactivate_question', id=question.id)}}" class="btn btn-outline-danger btn-sm">Deactivate Question</a>
+
+                {% elif question.active_flag == 'Inactive' %}
+
+                    <a href="{{ url_for('activate_question', id=question.id)}}" class="btn btn-outline-danger btn-sm">Activate Question</a>
+
+                {% endif %}
+
+                <a href="{{ url_for('delete_question', id=question.id)}}" class="btn btn-outline-danger btn-sm">Delete Question</a>
+
+            {% endif %}
+        </div>
+        <hr><br/>
+    {% endfor %}
+{% endblock %}
+

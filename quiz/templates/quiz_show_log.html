@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+        <div class="shadow-none p-3 mb-5 bg-light rounded">
+            <form method="POST">
+            <h4><strong>Attempted By : </strong>{{ quiz_taker_username }}</h4><br/>
+            <h4><strong>Date of Attempt : </strong>{{ quiz_taken_date }}</h4><br/>
+            <h4><strong>Score : </strong>{{ quiz_score }} / {{ quiz_total }}</h4><br/><br/>
+            <hr><br>
+            {% for question, response, answer, qn_score, qn_possible_score, image_choices in quiz_qn_ans_res_list %}
+                <strong> Question # {{loop.index}}: </strong><br><br>
+                <strong>{{question.question | safe }}</strong><br>
+                {% if question.question_type == 'text qn - image answer' %}
+                    {% for item, image in image_choices %}
+                        {% if image == 'default.jpg' %}
+                           <strong> Pic Not Uploaded </strong><br/><br/><br/>
+                        {% else %}
+                           <strong> Option{{loop.index}} </strong>
+                           <img src="{{url_for('static', filename='images/' + image)}}" width="75" align="middle"><br/><br/><br/><br/>
+                        {% endif %}
+                    {% endfor %}
+                {% elif question.question_type == 'image qn - text answer' %}
+                    {% for item, image in image_choices %}
+                        {% if loop.index == 1 %}
+                           <img src="{{url_for('static', filename='images/' + image)}}" width="75" align="middle"><br/><br/><br/><br/>
+                           Option1 : {{question.choice1}} <br><br>
+                           Option2 : {{question.choice2}} <br><br>
+                           Option3 : {{question.choice3}} <br><br>
+                           Option4 : {{question.choice4}} <br><br>
+                           Option5 : {{question.choice5}} <br><br>
+                        {% endif %}
+                    {% endfor %}
+                {% elif question.question_type == 'multiple-choice' %}
+                    Option1 : {{question.choice1}} <br><br>
+                    Option2 : {{question.choice2}} <br><br>
+                    Option3 : {{question.choice3}} <br><br>
+                    Option4 : {{question.choice4}} <br><br>
+                    Option5 : {{question.choice5}} <br><br>
+                {% endif %}
+                <strong>Answer : </strong>{{answer}}<br>
+                <strong>Response  : </strong>{{response}}<br>
+                <strong>Score : </strong>{{qn_score}} / {{qn_possible_score}}
+                <hr><br>
+            {% endfor %}
+            </form>
+        </div>
+{% endblock %}

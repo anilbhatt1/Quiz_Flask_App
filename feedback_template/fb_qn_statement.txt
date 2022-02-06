@@ -1,0 +1,19 @@
+1|Would you like to give us a feedback on your experience while using this app ?|Yes *Not-now|radio|Yes
+2|Thx for volunteering to give us feedback. We would like to know more about you. Would you mind giving us few details about you ? We wont be sharing this data to any third party.|Yes *Not-comfortable,May-be-next-time|radio|Yes
+31|Your Age|< 15 * 15-25 * 25-35 * 35-45 * Above 45|radio|NA
+32|From where did you hear about us ? |Friends * Social-Media * Linkedin * Web *Other (Please specify)|radio-text|NA
+33|You are taking this quiz for ? |Education * Just-curious-to-check-the-app * Competitive-Exam-Practice * Other(Please specify)|radio-text|NA
+34|Your native country |NA |text|NA
+35|Gender|Male * Female * Other|radio|NA
+4|Thx for sharing those details ! Would you mind sharing how you felt regarding technical aspects of this app ?|Yes *Not-now|radio|Yes
+51|How good is UI ? |Not up-to-mark *  Okai * Good * Loved-it |radio|NA
+52|How fast was the app ? |Damn-Slow * Okai-Pace * Fast |radio|NA
+53|How intuitive is the navigation ? |Have-a-hard-time * Was-Okai * Pretty-intuitive |radio|NA
+54|Any feedback you want to share with us regarding technical sapects|NA |text|NA
+61|Thx for letting us know ! Will you recommend this app to friends/family/colleagues ? |Definitely-No * May-Not * May-recommend *Will-recommend-for-sure|radio|NA
+62|Your overall rating for this app ? |Damp-Squib * Ordinary * Does-the-job * Awesome|radio|NA
+63|Anything else you would like us to know|NA |text|NA
+7|Thanks for visting the app, Have a great day !|NA|message|NA
+8|We respect your wish ! Would you mind sharing how you felt regarding technical aspects of this app ?|Yes *Not-now|radio|Yes
+9|You can write to us later also if any technical feedback ! Will you recommend this app to friends/family/colleagues ? |Definitely-No * May-Not * May-recommend *Will-recommend-for-sure|radio|NA
+10|Thx much for your valuable feedback ! |NA|message|NA

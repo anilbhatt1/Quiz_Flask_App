@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+    {% endfor %}
+
+    <div class="shadow-none p-3 mb-5 bg-light rounded">
+             <h2>{{ question.question | safe }}</h2><br/>
+             <small>Written By : {{ question.qn_creator.name }}<br/>
+                    Question Type :  {{ question.question_type }}<br/>
+                    Question Category : {{ question.question_category }}<br/>
+                    Active Flag : {{ question.active_flag }}<br>
+                    Date Written : {{ question.date_added }}</small><br/><br/>
+
+            {% if question.question_type == 'text qn - image answer' %}
+                {% for (num, image) in image_choices %}
+                    <small> Image Choice : {{num}} </small><br/><br/>
+                    {% if image == 'default.jpg' %}
+                       <strong> Pic Not Uploaded </strong><br/><br/><br/>
+                    {% else %}
+                       <img src="{{url_for('static', filename='images/' + image)}}" width="75" align="left"><br/><br/><br/><br/>
+                    {% endif %}
+                {% endfor %}
+            {% elif question.question_type == 'image qn - text answer' %}
+                {% for (num, image) in image_choices %}
+                    {% if num == 1 %}
+                        <img src="{{url_for('static', filename='images/' + image)}}" width="75" align="left"><br/><br/><br/><br/>
+                    {% endif %}
+                {% endfor %}
+                <strong>choice1 : </strong>{{ question.choice1 }}<br/><br/>
+                <strong>choice2 : </strong>{{ question.choice2 }}<br/><br/>
+                <strong>choice3 : </strong>{{ question.choice3 }}<br/><br/>
+                <strong>choice4 : </strong>{{ question.choice4 }}<br/><br/>
+                <strong>choice5 : </strong>{{ question.choice5 }}<br/><br/>
+            {% elif question.question_type == 'multiple-choice' %}
+                <strong>choice1 : </strong>{{ question.choice1 }}<br/><br/>
+                <strong>choice2 : </strong>{{ question.choice2 }}<br/><br/>
+                <strong>choice3 : </strong>{{ question.choice3 }}<br/><br/>
+                <strong>choice4 : </strong>{{ question.choice4 }}<br/><br/>
+                <strong>choice5 : </strong>{{ question.choice5 }}<br/><br/>
+            {% endif %}
+
+            {% if question.answer == 'other' %}
+                <small>Other_answer : {{ question.other_answer | safe }}</small><br/>
+            {% else %}
+                <small>Answer : {{ question.answer | safe }}</small><br/>
+            {% endif %}
+    </div>
+    <br/>
+
+    {% if question.qn_creator_id == current_user.id or current_user.role == 'admin' %}
+
+        <a href="{{ url_for('edit_question', id=question.id)}}" class="btn btn-outline-secondary btn-sm">Edit Question</a>
+
+    {% endif %}
+
+    {% if current_user.role == 'admin' %}
+
+        {% if question.active_flag == 'Active' %}
+
+            <a href="{{ url_for('deactivate_question', id=question.id)}}" class="btn btn-outline-danger btn-sm">Deactivate Question</a>
+
+        {% elif question.active_flag == 'Inactive' %}
+
+            <a href="{{ url_for('activate_question', id=question.id)}}" class="btn btn-outline-danger btn-sm">Activate Question</a>
+
+        {% endif %}
+
+        <a href="{{ url_for('delete_question', id=question.id)}}" class="btn btn-outline-danger btn-sm">Delete Question</a>
+
+    {% endif %}
+
+    <a href="{{ url_for('questions')}}" class="btn btn-outline-secondary btn-sm"> Back to Questions </a>
+{% endblock %}

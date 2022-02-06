@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message | safe }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+    {% endfor %}
+
+
+    <h1> Feedbacks </h1><br/>
+
+    {% if current_user.role == 'admin' %}
+
+        {% for fb_id, username, feedback_date, feedback_details in feedbacks_lst %}
+            <div class="shadow-none p-3 mb-5 bg-light rounded">
+                <small>Attempted By : {{ username }}<br/>
+                       Date Attempted : {{ feedback_date }}<br>
+                       Feedback ID :  {{ fb_id }}<br/>
+                       Feedback Details : {{ feedback_details }}<br/></small><br/><br/>
+
+                <a href="{{url_for('index')}}" class="btn btn-secondary btn-sm"> Back to Home </a>
+
+                <a href="{{ url_for('delete_feedback', id=fb_id)}}" class="btn btn-outline-danger btn-sm">Delete Feedback</a>
+            </div>
+            <hr><br/>
+        {% endfor %}
+
+    {% endif %}
+{% endblock %}
