@@ -6,6 +6,7 @@ from quiz.db_models import *
 from quiz.utils import *
 import random, re
 
+global quiz_index_dict 
 quiz_index_dict = {'num_quiz_questions':5, 'qn_idx':0}
 num_quiz_questions = 5
 quiz_question_id_lst = []
@@ -35,6 +36,7 @@ def start_quiz():
     print('Entering start_quiz & len(quiz_qn_lst):', len(quiz_qn_lst),
           "quiz_index_dict['qn_idx']:", quiz_index_dict['qn_idx'])
     if request.method == 'POST':
+        print("Entering first if quiz_index_dict['qn_idx']:",quiz_index_dict['qn_idx'], quiz_index_dict['num_quiz_questions'])
         if quiz_index_dict['qn_idx'] <= quiz_index_dict['num_quiz_questions']:
 
             oth_form = OtherAnswerForm()  # This form is to accept answer for 'Fill In the Blanks' question-type
