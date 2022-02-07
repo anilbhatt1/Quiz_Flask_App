@@ -11,6 +11,7 @@ num_quiz_questions = 5
 quiz_question_id_lst = []
 quiz_answer_lst = []
 quiz_qn_lst = []
+print('Top ID :', id(quiz_qn_lst))
 quiz_response_lst = []
 quiz_score_lst = []
 quiz_possible_score_lst = []
@@ -26,10 +27,11 @@ answer_map_dict = {'image1':1, 'image2':2, 'image3':3, 'image4':4, 'image5':5, '
 def start_quiz():
 
     global quiz_qn_lst
+    print('After global declare at begining of start_quiz ID:', id(quiz_qn_lst))
     print('start-quiz:', request.method)
     if request.method == 'POST':
         print('start-quiz:', len(quiz_qn_lst))
-
+        print('Inside POST immediately after post statement - first if - ID:', id(quiz_qn_lst))
         oth_form = OtherAnswerForm()  # This form is to accept answer for 'Fill In the Blanks' question-type
         if len(request.form.keys()) > 0:
            if len(oth_form.oth_answer.data) > 0:  # For 'Fill In The Blanks' questions, users response to be considered is 'oth_answer'
@@ -37,10 +39,13 @@ def start_quiz():
            else:
                user_response = request.form['options']  # For all the remaining questions it should be 'options' coming back from form
            quiz_response_lst.append(user_response)
+        else:
+            pass
 
         if len(quiz_qn_lst) > 0:
             oth_form = OtherAnswerForm()
             question = quiz_qn_lst[0]
+            print('Inside second if on the way to display ID:', id(quiz_qn_lst))
             if question.question_type == 'Fill-In-The Blank':  # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer' column in DB
                 quiz_answer_lst.append(question.other_answer)
             else:
@@ -53,12 +58,14 @@ def start_quiz():
                                  ('E', question.image5)]
             oth_form.oth_answer.data = ''
             quiz_qn_lst.pop(0)
+            print('Inside second if after pop on the way to display ID:', id(quiz_qn_lst))
             return render_template("quiz_questions.html",
                                     image_choices=image_choice_list,
                                     question=question,
                                     oth_form=oth_form,)
 
         else:
+            print('Inside second corresponding else before showing SCOREs - ID:', id(quiz_qn_lst))
             quiz_score, quiz_total = calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst,
                                                           current_user.id)
             flash('Quiz completed successfully !')
@@ -69,11 +76,13 @@ def start_quiz():
     elif request.method == 'GET':
         questions = Questions.query.order_by(Questions.id)
         quiz_qn_lst = []
+        print('Inside GET first ELIF ID while initializaing:', id(quiz_qn_lst))
         for qn in questions:
             if qn.active_flag == 'Active':
                 quiz_qn_lst.append(qn)
         random.shuffle(quiz_qn_lst)
         quiz_qn_lst = quiz_qn_lst[:num_quiz_questions]
+        print('Inside GET first ELIF ID after copying:', id(quiz_qn_lst))
         print('show html:', len(quiz_qn_lst), quiz_qn_lst[0])
         return render_template("start_quiz.html")
 
