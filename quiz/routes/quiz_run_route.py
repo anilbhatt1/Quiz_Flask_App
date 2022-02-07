@@ -6,6 +6,7 @@ from quiz.db_models import *
 from quiz.utils import *
 import random, re
 
+quiz_index_dict = {'num_quiz_questions':5, 'qn_idx':0}
 num_quiz_questions = 5
 quiz_question_id_lst = []
 quiz_qn_lst = []
@@ -30,34 +31,40 @@ def run_quiz():
             user_response = oth_form.oth_answer.data
         else:
             user_response = request.form['options']  # For all the remaining questions it should be 'options' coming back from form
+        global quiz_response_lst
         quiz_response_lst.append(user_response)
         return redirect(url_for('run_quiz'))
 
-    if quiz_qn_lst:
-        print('len(quiz_qn_lst):', len(quiz_qn_lst))
-        for question in quiz_qn_lst:
-            if question.question_type == 'Fill-In-The Blank':   # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer' column in DB
-                quiz_answer_lst.append(question.other_answer)
-            else:
-                quiz_answer_lst.append(question.answer)
-            quiz_question_id_lst.append(str(question.id))
-            image_choice_list   = [('A', question.image1),
-                                   ('B', question.image2),
-                                   ('C', question.image3),
-                                   ('D', question.image4),
-                                   ('E', question.image5)]
-            quiz_qn_lst.remove(question)
-            return render_template("quiz_questions.html",
-                                   image_choices=image_choice_list,
-                                   question=question,
-                                   oth_form=oth_form,
+    global quiz_index_dict
+    if quiz_index_dict['qn_idx'] < quiz_index_dict['num_quiz_questions']:
+        print('quiz_index_dict:',quiz_index_dict, 'quiz_qn_lst len :',len(quiz_qn_lst))
+        idx = quiz_index_dict['qn_idx']
+        question = quiz_qn_lst[idx]
+        global quiz_answer_lst
+        global quiz_question_id_lst
+        if question.question_type == 'Fill-In-The Blank':   # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer' column in DB
+            quiz_answer_lst.append(question.other_answer)
+        else:
+            quiz_answer_lst.append(question.answer)
+        quiz_question_id_lst.append(str(question.id))
+        image_choice_list   = [('A', question.image1),
+                               ('B', question.image2),
+                               ('C', question.image3),
+                               ('D', question.image4),
+                               ('E', question.image5)]
+        quiz_index_dict['qn_idx'] += 1
+        return render_template("quiz_questions.html",
+                                image_choices=image_choice_list,
+                                question=question,
+                                oth_form=oth_form,
                                    )
     else:
-        print('len(quiz_qn_lst):', len(quiz_qn_lst))
-        print('len(quiz_answer_lst):', len(quiz_answer_lst))
-        print('len(quiz_response_lst):', len(quiz_response_lst))
+        print('len(quiz_question_id_lst):', len(quiz_question_id_lst),
+              'len(quiz_answer_lst):', len(quiz_answer_lst),
+              'len(quiz_response_lst):', len(quiz_response_lst))
         quiz_score, quiz_total = calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst, current_user.id)
         flash('Quiz completed successfully !')
+        quiz_index_dict['qn_idx'] = 0
         return render_template("quiz_score.html",
                                quiz_score=quiz_score,
                                quiz_total=quiz_total,
@@ -69,11 +76,10 @@ def start_quiz():
 
     if request.method == 'POST':
         questions = Questions.query.order_by(Questions.id)
-        for num, qn in enumerate(questions, 1):
+        global quiz_qn_lst
+        for qn in questions:
             if qn.active_flag == 'Active':
                 quiz_qn_lst.append(qn)
-            if num == num_quiz_questions:
-                break
         random.shuffle(quiz_qn_lst)
 
         return redirect(url_for('run_quiz'))
