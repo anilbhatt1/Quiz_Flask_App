@@ -6,8 +6,7 @@ from quiz.db_models import *
 from quiz.utils import *
 import random, re
 
-global quiz_index_dict 
-quiz_index_dict = {'num_quiz_questions':5, 'qn_idx':0}
+quiz_index_dict = {'num_quiz_questions':5}
 num_quiz_questions = 5
 quiz_question_id_lst = []
 quiz_answer_lst = []
@@ -34,24 +33,23 @@ print('****Prepared questions - len(quiz_qn_lst):', len(quiz_qn_lst))
 def start_quiz():
 
     print('Entering start_quiz & len(quiz_qn_lst):', len(quiz_qn_lst),
-          "quiz_index_dict['qn_idx']:", quiz_index_dict['qn_idx'])
+          "idx:", len(quiz_response_lst))
     if request.method == 'POST':
-        print("Entering first if quiz_index_dict['qn_idx']:",quiz_index_dict['qn_idx'], quiz_index_dict['num_quiz_questions'])
-        if quiz_index_dict['qn_idx'] <= quiz_index_dict['num_quiz_questions']:
+        print("Entering first if len(quiz_response_lst):",len(quiz_response_lst), quiz_index_dict['num_quiz_questions'])
+        if len(quiz_response_lst) <= quiz_index_dict['num_quiz_questions']:
 
             oth_form = OtherAnswerForm()  # This form is to accept answer for 'Fill In the Blanks' question-type
-
-            if request.method == 'POST' and quiz_index_dict['qn_idx']  >0 :
+            if len(request.form.keys()) > 0:
                 if len(oth_form.oth_answer.data) > 0:  # For 'Fill In The Blanks' questions, users response to be considered is 'oth_answer'
-                    user_response = oth_form.oth_answer.data
+                     user_response = oth_form.oth_answer.data
                 else:
-                    user_response = request.form['options']  # For all the remaining questions it should be 'options' coming back from form
+                     user_response = request.form['options']  # For all the remaining questions it should be 'options' coming back from form
                 quiz_response_lst.append(user_response)
 
-            if quiz_index_dict['qn_idx'] < quiz_index_dict['num_quiz_questions']:
-                print('Entering display loop :', quiz_index_dict['qn_idx'])
+            if len(quiz_response_lst) < quiz_index_dict['num_quiz_questions']:
+                print('Entering display loop :', len(quiz_response_lst))
                 oth_form = OtherAnswerForm()
-                idx = quiz_index_dict['qn_idx']
+                idx = len(quiz_response_lst)
                 question = quiz_qn_lst[idx]
                 if question.question_type == 'Fill-In-The Blank':  # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer' column in DB
                     quiz_answer_lst.append(question.other_answer)
@@ -63,7 +61,6 @@ def start_quiz():
                                      ('C', question.image3),
                                      ('D', question.image4),
                                      ('E', question.image5)]
-                quiz_index_dict['qn_idx'] += 1
                 print('About to dsiplay question ID:', question.id)
                 return render_template("quiz_questions.html",
                                         image_choices=image_choice_list,
@@ -79,7 +76,6 @@ def start_quiz():
                 quiz_score, quiz_total = calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst,
                                                               current_user.id)
                 flash('Quiz completed successfully !')
-                quiz_index_dict['qn_idx'] = 0
                 random.shuffle(quiz_qn_lst)
                 return render_template("quiz_score.html",
                                        quiz_score=quiz_score,
