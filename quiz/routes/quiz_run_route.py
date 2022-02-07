@@ -10,8 +10,8 @@ quiz_index_dict = {'num_quiz_questions':5}
 num_quiz_questions = 5
 quiz_question_id_lst = []
 quiz_answer_lst = []
-quiz_qn_lst = []
-print('Top ID :', id(quiz_qn_lst))
+quiz_qn_list = []
+print('Top ID :', id(quiz_qn_list))
 quiz_response_lst = []
 quiz_score_lst = []
 quiz_possible_score_lst = []
@@ -20,18 +20,23 @@ answer_types = ['image1', 'image2', 'image3', 'image4', 'image5', 'other',
 answer_map_dict = {'image1':1, 'image2':2, 'image3':3, 'image4':4, 'image5':5, 'other':'other',
                    'choice1':1, 'choice2':2, 'choice3':3, 'choice4':4, 'choice5':5,
                    'option1':1, 'option2':2, 'option3':3, 'option4':4, 'option5':5}
+i = 0
+print('Top ID of i:', i)
 
 # Start the quiz and get questions one-by-one
 @app.route('/start-quiz', methods=['GET','POST'])
 @login_required # Don't allow to take quiz unless logged-in
 def start_quiz():
 
+    global quiz_qn_list
     global quiz_qn_lst
-    print('After global declare at begining of start_quiz ID:', id(quiz_qn_lst))
-    print('start-quiz:', request.method)
+    global i
+    print('After global declare at begining of start_quiz ID:', id(quiz_qn_list),
+          'start-quiz:', request.method,
+          'ID of i:', id(i), 'Value of i:', i)
     if request.method == 'POST':
-        print('start-quiz:', len(quiz_qn_lst))
-        print('Inside POST immediately after post statement - first if - ID:', id(quiz_qn_lst))
+        print('start-quiz:', len(quiz_qn_lst),
+              'Inside POST immediately after post statement - first if - tuple ID:', id(quiz_qn_lst))
         oth_form = OtherAnswerForm()  # This form is to accept answer for 'Fill In the Blanks' question-type
         if len(request.form.keys()) > 0:
            if len(oth_form.oth_answer.data) > 0:  # For 'Fill In The Blanks' questions, users response to be considered is 'oth_answer'
@@ -42,10 +47,11 @@ def start_quiz():
         else:
             pass
 
-        if len(quiz_qn_lst) > 0:
+        print('Before  i < num_quiz_questions ID of i:', id(i),'Value of i:', i)
+        if i < num_quiz_questions:
             oth_form = OtherAnswerForm()
-            question = quiz_qn_lst[0]
-            print('Inside second if on the way to display ID:', id(quiz_qn_lst))
+            question = quiz_qn_lst[i]
+            print('Inside second if on the way to display tuple ID:', id(quiz_qn_lst))
             if question.question_type == 'Fill-In-The Blank':  # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer' column in DB
                 quiz_answer_lst.append(question.other_answer)
             else:
@@ -57,15 +63,16 @@ def start_quiz():
                                  ('D', question.image4),
                                  ('E', question.image5)]
             oth_form.oth_answer.data = ''
-            quiz_qn_lst.pop(0)
-            print('Inside second if after pop on the way to display ID:', id(quiz_qn_lst))
+            i += 1
+            print('Inside second if after i increment on the way to display - tup ID:', id(quiz_qn_lst),
+                  'After i += 1 ID of i:', id(i), 'Value of i:', i)
             return render_template("quiz_questions.html",
                                     image_choices=image_choice_list,
                                     question=question,
                                     oth_form=oth_form,)
 
         else:
-            print('Inside second corresponding else before showing SCOREs - ID:', id(quiz_qn_lst))
+            print('Inside second corresponding else before showing SCOREs - tup ID:', id(quiz_qn_lst))
             quiz_score, quiz_total = calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst,
                                                           current_user.id)
             flash('Quiz completed successfully !')
@@ -75,14 +82,14 @@ def start_quiz():
 
     elif request.method == 'GET':
         questions = Questions.query.order_by(Questions.id)
-        quiz_qn_lst = []
-        print('Inside GET first ELIF ID while initializaing:', id(quiz_qn_lst))
+        print('Inside GET first ELIF ID while initializaing - list ID:', id(quiz_qn_list))
         for qn in questions:
             if qn.active_flag == 'Active':
-                quiz_qn_lst.append(qn)
-        random.shuffle(quiz_qn_lst)
-        quiz_qn_lst = quiz_qn_lst[:num_quiz_questions]
-        print('Inside GET first ELIF ID after copying:', id(quiz_qn_lst))
+                quiz_qn_list.append(qn)
+        random.shuffle(quiz_qn_list)
+        quiz_qn_list = quiz_qn_list[:num_quiz_questions]
+        quiz_qn_lst = tuple(quiz_qn_list)
+        print('Inside GET first ELIF ID after copying - tup ID:', id(quiz_qn_lst))
         print('show html:', len(quiz_qn_lst), quiz_qn_lst[0])
         return render_template("start_quiz.html")
 
