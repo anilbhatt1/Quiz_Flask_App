@@ -32,7 +32,8 @@ print('****Prepared questions - len(quiz_qn_lst):', len(quiz_qn_lst))
 @login_required # Don't allow to take quiz unless logged-in
 def start_quiz():
 
-    print('Entering start_quiz - len(quiz_qn_lst):', len(quiz_qn_lst))
+    print('Entering start_quiz & len(quiz_qn_lst):', len(quiz_qn_lst),
+          "quiz_index_dict['qn_idx']:", quiz_index_dict['qn_idx'])
     if request.method == 'POST':
         if quiz_index_dict['qn_idx'] <= quiz_index_dict['num_quiz_questions']:
 
@@ -46,6 +47,7 @@ def start_quiz():
                 quiz_response_lst.append(user_response)
 
             if quiz_index_dict['qn_idx'] < quiz_index_dict['num_quiz_questions']:
+                print('Entering display loop :', quiz_index_dict['qn_idx'])
                 oth_form = OtherAnswerForm()
                 idx = quiz_index_dict['qn_idx']
                 question = quiz_qn_lst[idx]
@@ -60,6 +62,7 @@ def start_quiz():
                                      ('D', question.image4),
                                      ('E', question.image5)]
                 quiz_index_dict['qn_idx'] += 1
+                print('About to dsiplay question ID:', question.id)
                 return render_template("quiz_questions.html",
                                         image_choices=image_choice_list,
                                         question=question,
@@ -68,7 +71,8 @@ def start_quiz():
             else:
                 print('len(quiz_question_id_lst):', len(quiz_question_id_lst),
                       'len(quiz_answer_lst):', len(quiz_answer_lst),
-                      'len(quiz_response_lst):', len(quiz_response_lst))
+                      'len(quiz_response_lst):', len(quiz_response_lst),
+                      'quiz_question_id_lst:', quiz_question_id_lst)
 
                 quiz_score, quiz_total = calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst,
                                                               current_user.id)
