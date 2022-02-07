@@ -20,68 +20,62 @@ answer_map_dict = {'image1':1, 'image2':2, 'image3':3, 'image4':4, 'image5':5, '
                    'choice1':1, 'choice2':2, 'choice3':3, 'choice4':4, 'choice5':5,
                    'option1':1, 'option2':2, 'option3':3, 'option4':4, 'option5':5}
 
-questions = Questions.query.order_by(Questions.id)
-for qn in questions:
-    if qn.active_flag == 'Active':
-        quiz_qn_lst.append(qn)
-random.shuffle(quiz_qn_lst)
-print('****Prepared questions - len(quiz_qn_lst):', len(quiz_qn_lst))
-
 # Start the quiz and get questions one-by-one
 @app.route('/start-quiz', methods=['GET','POST'])
 @login_required # Don't allow to take quiz unless logged-in
 def start_quiz():
 
-    print('Entering start_quiz & len(quiz_qn_lst):', len(quiz_qn_lst),
-          "idx:", len(quiz_response_lst))
+    global quiz_qn_lst
+    print('start-quiz:', request.method)
     if request.method == 'POST':
-        print("Entering first if len(quiz_response_lst):",len(quiz_response_lst), quiz_index_dict['num_quiz_questions'])
-        if len(quiz_response_lst) <= quiz_index_dict['num_quiz_questions']:
+        print('start-quiz:', len(quiz_qn_lst))
 
-            oth_form = OtherAnswerForm()  # This form is to accept answer for 'Fill In the Blanks' question-type
-            if len(request.form.keys()) > 0:
-                if len(oth_form.oth_answer.data) > 0:  # For 'Fill In The Blanks' questions, users response to be considered is 'oth_answer'
-                     user_response = oth_form.oth_answer.data
-                else:
-                     user_response = request.form['options']  # For all the remaining questions it should be 'options' coming back from form
-                quiz_response_lst.append(user_response)
+        oth_form = OtherAnswerForm()  # This form is to accept answer for 'Fill In the Blanks' question-type
+        if len(request.form.keys()) > 0:
+           if len(oth_form.oth_answer.data) > 0:  # For 'Fill In The Blanks' questions, users response to be considered is 'oth_answer'
+               user_response = oth_form.oth_answer.data
+           else:
+               user_response = request.form['options']  # For all the remaining questions it should be 'options' coming back from form
+           quiz_response_lst.append(user_response)
 
-            if len(quiz_response_lst) < quiz_index_dict['num_quiz_questions']:
-                print('Entering display loop :', len(quiz_response_lst))
-                oth_form = OtherAnswerForm()
-                idx = len(quiz_response_lst)
-                question = quiz_qn_lst[idx]
-                if question.question_type == 'Fill-In-The Blank':  # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer' column in DB
-                    quiz_answer_lst.append(question.other_answer)
-                else:
-                    quiz_answer_lst.append(question.answer)
-                quiz_question_id_lst.append(str(question.id))
-                image_choice_list = [('A', question.image1),
-                                     ('B', question.image2),
-                                     ('C', question.image3),
-                                     ('D', question.image4),
-                                     ('E', question.image5)]
-                print('About to dsiplay question ID:', question.id)
-                return render_template("quiz_questions.html",
-                                        image_choices=image_choice_list,
-                                        question=question,
-                                        oth_form=oth_form,)
-
+        if len(quiz_qn_lst) > 0:
+            oth_form = OtherAnswerForm()
+            question = quiz_qn_lst[0]
+            if question.question_type == 'Fill-In-The Blank':  # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer' column in DB
+                quiz_answer_lst.append(question.other_answer)
             else:
-                print('len(quiz_question_id_lst):', len(quiz_question_id_lst),
-                      'len(quiz_answer_lst):', len(quiz_answer_lst),
-                      'len(quiz_response_lst):', len(quiz_response_lst),
-                      'quiz_question_id_lst:', quiz_question_id_lst)
+                quiz_answer_lst.append(question.answer)
+            quiz_question_id_lst.append(str(question.id))
+            image_choice_list = [('A', question.image1),
+                                 ('B', question.image2),
+                                 ('C', question.image3),
+                                 ('D', question.image4),
+                                 ('E', question.image5)]
+            oth_form.oth_answer.data = ''
+            quiz_qn_lst.pop(0)
+            return render_template("quiz_questions.html",
+                                    image_choices=image_choice_list,
+                                    question=question,
+                                    oth_form=oth_form,)
 
-                quiz_score, quiz_total = calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst,
-                                                              current_user.id)
-                flash('Quiz completed successfully !')
-                random.shuffle(quiz_qn_lst)
-                return render_template("quiz_score.html",
-                                       quiz_score=quiz_score,
-                                       quiz_total=quiz_total,)
+        else:
+            quiz_score, quiz_total = calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst,
+                                                          current_user.id)
+            flash('Quiz completed successfully !')
+            return render_template("quiz_score.html",
+                                    quiz_score=quiz_score,
+                                    quiz_total=quiz_total,)
 
-    return render_template("start_quiz.html")
+    elif request.method == 'GET':
+        questions = Questions.query.order_by(Questions.id)
+        quiz_qn_lst = []
+        for qn in questions:
+            if qn.active_flag == 'Active':
+                quiz_qn_lst.append(qn)
+        random.shuffle(quiz_qn_lst)
+        quiz_qn_lst = quiz_qn_lst[:num_quiz_questions]
+        print('show html:', len(quiz_qn_lst), quiz_qn_lst[0])
+        return render_template("start_quiz.html")
 
 def calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst, user_id):
     score = 0
