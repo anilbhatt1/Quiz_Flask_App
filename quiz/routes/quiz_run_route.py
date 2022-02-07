@@ -10,6 +10,8 @@ quiz_index_dict = {'num_quiz_questions':5, 'qn_idx':0}
 num_quiz_questions = 5
 quiz_question_id_lst = []
 quiz_answer_lst = []
+global quiz_qn_lst
+quiz_qn_lst = []
 quiz_response_lst = []
 quiz_score_lst = []
 quiz_possible_score_lst = []
@@ -83,6 +85,7 @@ def start_quiz():
             if qn.active_flag == 'Active':
                 quiz_qn_lst.append(qn)
         random.shuffle(quiz_qn_lst)
+        print('len(quiz_qn_lst) inside start_quiz:',len(quiz_qn_lst))
 
         return redirect(url_for('run_quiz'))
 
