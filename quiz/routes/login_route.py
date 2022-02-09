@@ -145,8 +145,8 @@ def logout():
         else:
             fb_response = request.form['options']
         fb_response_lst.append(fb_response)  # Use DB to save this
-        next_qn_id = control_flow(fb_response, fb_qn_lst[-1].qn_id)
         print('fb_qn_dict.keys() After control_flow to get next question:', fb_qn_dict.keys())
+        next_qn_id = control_flow(fb_response, fb_qn_lst[-1].qn_id)
         next_fb_qn = fb_qn_dict[str(next_qn_id)]
         if next_fb_qn.qn_type == 'message':
             save_to_feedback_db(fb_qn_lst, fb_response_lst)
