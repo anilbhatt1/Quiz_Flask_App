@@ -186,7 +186,6 @@ def edit_question(id):
         question.other_answer = form.other_answer.data
         question.active_flag = 'Active'
         # Update database
-        db.session.add(question)
         db.session.commit()
         # Remove old images from static folder
         for idx, images in enumerate(form_images_list):
