@@ -49,17 +49,17 @@ def start_quiz():
             oth_form = OtherAnswerForm()
             print('next_qn_id 3:', next_qn_id)
             question = Questions.query.filter_by(id=next_qn_id).first()
-            if question.question_type == 'Fill-In-The Blank':  # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer' column in DB
-                qn_answer = question.other_answer
-            else:
-                qn_answer = question.answer
+            #if question.question_type == 'Fill-In-The Blank':  # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer' column in DB
+            #    qn_answer = question.other_answer
+            #else:
+            #    qn_answer = question.answer
             image_choice_list = [('A', question.image1),
                                  ('B', question.image2),
                                  ('C', question.image3),
                                  ('D', question.image4),
                                  ('E', question.image5)]
             oth_form.oth_answer.data = ''
-            temp_quiz_db('update-answer', qn_answer, '')
+            #temp_quiz_db('update-answer', qn_answer, '')
             return render_template("quiz_questions.html",
                                     image_choices=image_choice_list,
                                     question=question,
@@ -73,20 +73,39 @@ def start_quiz():
 # Function to read/update temp_quiz DB
 def temp_quiz_db(method, answer, response):
 
+    # Creating a record to temp_quiz DB. Initial create below will only be having list of qn IDs to be used in quiz.
+    # As quiz progresses, this DB record created below will get updated with responses, answers and next question id to be shown
     if method == 'create':
-        print('Entering create')
+
         quiz_qn_list = []
+        quiz_qn_id_list = []
+        quiz_qn_ans_list = []
         questions = Questions.query.order_by(Questions.id)
         for qn in questions:
             if qn.active_flag == 'Active':
-                quiz_qn_list.append(qn.id)
+                if qn.question_type == 'Fill-In-The Blank':  # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer' column in DB
+                    qn_answer = qn.other_answer
+                else:
+                    qn_answer = qn.answer
+                qn_id = qn.id
+                tup = (qn_id, qn_answer)
+                quiz_qn_list.append(tup)
+
         random.shuffle(quiz_qn_list)
         quiz_qn_list = quiz_qn_list[:num_quiz_questions]
-        qn_id_str = "|".join(map(str, quiz_qn_list))
-        next_qn_id = quiz_qn_list[0]
+
+        for qn_id, ans in quiz_qn_list:
+            quiz_qn_id_list.append(qn_id)
+            quiz_qn_ans_list.append(ans)
+
+        qn_id_str = "|".join(map(str, quiz_qn_id_list))
+        next_qn_id = quiz_qn_id_list[0]
+        answer_str = "|".join(quiz_qn_ans_list)
+        print('qn_id_str:',qn_id_str)
+        print('answer_str:',answer_str)
         quiz_taker_id = current_user.id
         quiz_temp = Quiztemp(qn_id_str = qn_id_str,
-                             answer_str= '',
+                             answer_str= answer_str,
                              response_str='',
                              next_qn_id=next_qn_id,
                              quiz_taker_id = quiz_taker_id)
@@ -94,12 +113,14 @@ def temp_quiz_db(method, answer, response):
         db.session.add(quiz_temp)
         db.session.commit()
 
+    # Fetching the next-question-id to be shown in the quiz
     elif method == 'read-next-qn-id':
         print('Entering read-next-qn-id')
         quiz_temp = Quiztemp.query.filter_by(quiz_taker_id=current_user.id).first()
 
         return quiz_temp.next_qn_id
 
+    # Fetching the question_id_list used in quiz, their corresponding answers and user responses
     elif method == 'read':
         print('Entering read')
         quiz_temp = Quiztemp.query.filter_by(quiz_taker_id=current_user.id).first()
@@ -115,6 +136,7 @@ def temp_quiz_db(method, answer, response):
 
         return qn_id_lst, answer_lst, response_lst
 
+    # Will update the answer in quiz_temp DB record for the specific question to be displayed in
     elif method == 'update-answer':
         print('Entering update-answer')
         quiz_temp = Quiztemp.query.filter_by(quiz_taker_id=current_user.id).first()
