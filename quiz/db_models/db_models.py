@@ -74,3 +74,13 @@ class Feedbacks(db.Model):
     feedback_giver_name = db.Column(db.String(20), nullable=False)
     feedback_details = db.Column(db.String(900), nullable=False)
     date_of_feedback = db.Column(db.DateTime, default=datetime.utcnow)
+
+# Create model to store temp quiz data while attempting quiz
+class Quiztemp(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    qn_id_str = db.Column(db.String(200))
+    answer_str = db.Column(db.String(500))
+    response_str = db.Column(db.String(500))
+    next_qn_id = db.Column(db.Integer)
+    quiz_taker_id = db.Column(db.Integer)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
