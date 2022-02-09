@@ -144,7 +144,7 @@ def logout():
             fb_response = oth_form.oth_answer.data
         else:
             fb_response = request.form['options']
-        fb_response_lst.append(fb_response)  # Use DB to save this
+        fb_response_lst.append(fb_response)  # Use DB to save this        
         next_qn_id = control_flow(fb_response, fb_qn_lst[-1].qn_id)
         print('fb_qn_dict.keys() After control_flow to get next question:', fb_qn_dict.keys())
         next_fb_qn = fb_qn_dict[str(next_qn_id)]
@@ -169,7 +169,7 @@ def logout():
     # Upon clicking logout, Initial flow will come here
     qn_id = 1
     first_fb_qn = fb_qn_dict[str(qn_id)]
-    print('fb_qn_dict.keys() Initial Flow:', fb_qn_dict.keys())
+    print('fb_qn_dict.keys() Initial Flow:', fb_qn_dict.keys()) 
     fb_qn_lst.append(first_fb_qn) # Use DB to save this
     answer_lst = first_fb_qn.answers.split('*')
     return render_template("feedback.html",
