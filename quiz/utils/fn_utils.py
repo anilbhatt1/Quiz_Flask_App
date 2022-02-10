@@ -3,6 +3,9 @@ from PIL import Image
 import random, time, os, re
 from quiz.routes import *
 from quiz.db_models import *
+from pandas import read_excel
+from collections import namedtuple
+import re
 
 num_quiz_questions = 5
 qn_answer = ''
@@ -13,6 +16,10 @@ answer_types = ['image1', 'image2', 'image3', 'image4', 'image5', 'other',
 answer_map_dict = {'image1':1, 'image2':2, 'image3':3, 'image4':4, 'image5':5, 'other':'other',
                    'choice1':1, 'choice2':2, 'choice3':3, 'choice4':4, 'choice5':5,
                    'option1':1, 'option2':2, 'option3':3, 'option4':4, 'option5':5}
+fb_logic = namedtuple('fb_logic', 'fb_qn fb_qn_if_correct fb_qn_if_wrong')
+fb_qn = namedtuple('fb_qn', 'qn_id qn qn_type answers correct_answer')
+fb_qn_dict = {}
+fb_logic_dict = {}
 
 # Function to save the image as part of adding/editing questions.
 def save_image_qn(image_file_list, current_name_list, action):
@@ -223,3 +230,43 @@ def temp_quiz_db(method, response):
             recs_deleted += 1
         return recs_deleted
 
+def prep_feedback_data():
+    with open('./feedback_template/fb_qn_statement.txt') as f:
+        fb_qn_statement_lst = f.readlines()
+
+    '''
+    Preparing feedback questions and storing it in a dictionary in below format
+    '1': fb_qn(qn_id=1, qn='Would like to give us a feedback on your experience while using this app ?', qn_type='radio',
+             answers='Yes *Not now', correct_answer='Yes')
+    '''
+    fb_qn_dict = {}
+    regex = re.compile(r'[\n\r\t]')
+    for statement in fb_qn_statement_lst:
+        qn_lst = statement.split('|')
+        qn_id_ = qn_lst[0]
+        qn_ = regex.sub("", qn_lst[1]).strip()  # Remove \n,\r,\t, leading & trailing spaces
+        answers_ = regex.sub("", qn_lst[2]).strip()
+        qn_type_ = regex.sub("", qn_lst[3]).strip()
+        correct_answer_ = regex.sub("", qn_lst[4]).strip()
+        fb_qn_ = fb_qn(qn_id=qn_id_, qn=qn_, qn_type=qn_type_, answers=answers_, correct_answer=correct_answer_)
+        fb_qn_dict[qn_id_] = fb_qn_
+
+    '''
+    Preparing feedback logics and storing it in a dictionary in below format
+    1 : fb_logic(logic_id=1, fb_qn=1, fb_qn_if_correct=2, fb_qn_if_wrong=7)
+    '''
+    fb_qn_logic_path = './feedback_template/fb_qn_logic.xlsx'
+    my_sheet = 'Sheet1'
+    df = read_excel(fb_qn_logic_path, sheet_name=my_sheet)
+    fb_logic = namedtuple('fb_logic', 'logic_id fb_qn fb_qn_if_correct fb_qn_if_wrong')
+    fb_logic_dict = {}
+
+    for i in range(df.shape[0]):
+        fb_qn_ = int(df.iloc[i]['Qn'])
+        logic_id_ = str(fb_qn_)
+        fb_qn_if_correct_ = str(df.iloc[i]['Correct'])
+        fb_qn_if_wrong_ = str(df.iloc[i]['Incorrect'])
+        fb_logic_dict[logic_id_] = fb_logic(logic_id=logic_id_, fb_qn=fb_qn_, fb_qn_if_correct=fb_qn_if_correct_,
+                                            fb_qn_if_wrong=fb_qn_if_wrong_)
+
+    return fb_qn_dict, fb_logic_dict

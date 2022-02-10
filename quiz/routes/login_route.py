@@ -15,58 +15,15 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-fb_logic = namedtuple('fb_logic', 'fb_qn fb_qn_if_correct fb_qn_if_wrong')
-fb_qn = namedtuple('fb_qn', 'qn_id qn qn_type answers correct_answer')
+#fb_logic = namedtuple('fb_logic', 'fb_qn fb_qn_if_correct fb_qn_if_wrong')
+#fb_qn = namedtuple('fb_qn', 'qn_id qn qn_type answers correct_answer')
 fb_qn_dict = {}
 fb_logic_dict = {}
 fb_qn_lst = []
 fb_response_lst = []
 
 
-def prep_feedback_data():
-    with open('./feedback_template/fb_qn_statement.txt') as f:
-        fb_qn_statement_lst = f.readlines()
-
-    '''
-    Preparing feedback questions and storing it in a dictionary in below format
-    '1': fb_qn(qn_id=1, qn='Would like to give us a feedback on your experience while using this app ?', qn_type='radio',
-             answers='Yes *Not now', correct_answer='Yes')
-    '''
-    fb_qn_dict = {}
-    regex = re.compile(r'[\n\r\t]')
-    for statement in fb_qn_statement_lst:
-        qn_lst = statement.split('|')
-        qn_id_ = qn_lst[0]
-        qn_ = regex.sub("", qn_lst[1]).strip()  # Remove \n,\r,\t, leading & trailing spaces
-        answers_ = regex.sub("", qn_lst[2]).strip()
-        qn_type_ = regex.sub("", qn_lst[3]).strip()
-        correct_answer_ = regex.sub("", qn_lst[4]).strip()
-        fb_qn_ = fb_qn(qn_id=qn_id_, qn=qn_, qn_type=qn_type_, answers=answers_, correct_answer=correct_answer_)
-        fb_qn_dict[qn_id_] = fb_qn_
-
-    '''
-    Preparing feedback logics and storing it in a dictionary in below format
-    1 : fb_logic(logic_id=1, fb_qn=1, fb_qn_if_correct=2, fb_qn_if_wrong=7)
-    '''
-    fb_qn_logic_path = './feedback_template/fb_qn_logic.xlsx'
-    my_sheet = 'Sheet1'
-    df = read_excel(fb_qn_logic_path, sheet_name=my_sheet)
-    fb_logic = namedtuple('fb_logic', 'logic_id fb_qn fb_qn_if_correct fb_qn_if_wrong')
-    fb_logic_dict = {}
-
-    for i in range(df.shape[0]):
-        fb_qn_ = int(df.iloc[i]['Qn'])
-        logic_id_ = str(fb_qn_)
-        fb_qn_if_correct_ = str(df.iloc[i]['Correct'])
-        fb_qn_if_wrong_ = str(df.iloc[i]['Incorrect'])
-        fb_logic_dict[logic_id_] = fb_logic(logic_id=logic_id_, fb_qn=fb_qn_, fb_qn_if_correct=fb_qn_if_correct_,
-                                            fb_qn_if_wrong=fb_qn_if_wrong_)
-
-    return fb_qn_dict, fb_logic_dict
-
-
 fb_qn_dict, fb_logic_dict = prep_feedback_data()
-
 
 def control_flow(fb_response, fb_qn_id):
     print('fb_logic_dict.keys() inside control_flow:', fb_logic_dict.keys())
