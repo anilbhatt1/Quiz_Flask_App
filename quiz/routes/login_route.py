@@ -22,6 +22,7 @@ fb_logic_dict = {}
 fb_qn_lst = []
 fb_response_lst = []
 
+
 def prep_feedback_data():
     with open('./feedback_template/fb_qn_statement.txt') as f:
         fb_qn_statement_lst = f.readlines()
@@ -63,7 +64,9 @@ def prep_feedback_data():
 
     return fb_qn_dict, fb_logic_dict
 
+
 fb_qn_dict, fb_logic_dict = prep_feedback_data()
+
 
 def control_flow(fb_response, fb_qn_id):
     print('fb_logic_dict.keys() inside control_flow:', fb_logic_dict.keys())
@@ -90,30 +93,95 @@ def make_display_list(qn_id):
         display_lst.append(tup)
     return display_lst, fb_qn
 
+
+# Function to read/update temp_feedback DB
+def temp_fb_db(method, fb_qn, fb_response, fb_qn_id):
+    # Creating a record to temp_feedback DB. Initial create below will be having list of qn IDs to be used in quiz, their answers &.
+    # next qn id. As quiz progresses, this DB record created below will get updated with responses and next qn id to be shown.
+    if method == 'create':
+
+        feedback_taker_id = current_user.id
+        fb_temp = Feedbacktemp(fb_qn_str=fb_qn,
+                               fb_response_str='',
+                               fb_qn_id=fb_qn_id,
+                               feedback_taker_id=feedback_taker_id)
+
+        # Add the values to database
+        db.session.add(fb_temp)
+        db.session.commit()
+
+    # Fetching the feedback-question-id that got already displayed
+    elif method == 'read-qn-id':
+        fb_temp = Feedbacktemp.query.filter_by(feedback_taker_id=current_user.id).first()
+
+        return fb_temp.fb_qn_id
+
+    # Fetching the question_id_list used in quiz, their corresponding answers and user responses
+    elif method == 'read-list':
+        fb_temp = Feedbacktemp.query.filter_by(feedback_taker_id=current_user.id).first()
+
+        fb_qn_str = fb_temp.fb_qn_str
+        fb_qn_lst = fb_qn_str.split('|')
+
+        fb_response_str = fb_temp.fb_response_str
+        fb_response_lst = fb_response_str.split('|')
+
+        return fb_qn_lst, fb_response_lst
+
+    # Updating the response that user provided while taking the feedback and next question ID to be displayed
+    elif method == 'update':
+        fb_temp = Feedbacktemp.query.filter_by(feedback_taker_id=current_user.id).first()
+
+        fb_temp.fb_qn_id = fb_qn_id
+        fb_response_str = fb_temp.fb_response_str
+        if fb_response_str == '':  # response_str while creating the temp record was ''.Overwriting it with first response
+            fb_response_str = str(fb_response)
+        else:
+            fb_response_str = fb_response_str + '|' + str(fb_response)
+        fb_temp.fb_response_str = fb_response_str
+
+        fb_qn_str = fb_temp.fb_qn_str
+        fb_qn_str = fb_qn_str + '|' + str(fb_qn)
+        fb_temp.fb_qn_str = fb_qn_str
+
+        # Updating the database record
+        db.session.commit()
+        return fb_qn_id
+
+    # Deleting the temp record belonging toe the current user-id
+    elif method == 'delete':
+        fb_temps = Feedbacktemp.query.filter_by(feedback_taker_id=current_user.id)
+        recs_deleted = 0
+        for fb_temp in fb_temps:
+            db.session.delete(fb_temp)
+            db.session.commit()
+            recs_deleted += 1
+        return recs_deleted
+
 # Saving the details to Feedback DB before logout
 def save_to_feedback_db(fb_qn_lst, fb_response_lst):
-
     feedback_db_str = ''
     for i in range(len(fb_response_lst)):
-        q_id = fb_qn_lst[i].qn_id
-        feedback_db_str += str(q_id) + '|' + str(fb_response_lst[i]) +'|'
+        feedback_db_str += str(fb_qn_lst[i]) + '|' + str(fb_response_lst[i]) + '|'
 
     feedback_details = feedback_db_str
 
-    feedbacks =Feedbacks(feedback_details=feedback_details,
-                         feedback_giver_name=current_user.username)
+    feedbacks = Feedbacks(feedback_details=feedback_details,
+                          feedback_giver_name=current_user.username)
 
     db.session.add(feedbacks)
     db.session.commit()
     fb_qn_lst.clear()
     fb_response_lst.clear()
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return Users.query.get(int(user_id))
 
+
 # Create login page
-@app.route('/login',methods=['GET','POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -133,90 +201,99 @@ def login():
 
     return render_template('login.html', form=form)
 
+
 # Create logout page
-@app.route('/logout',methods=['GET','POST'])
-@login_required # We can't logout unless logged-in
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required  # We can't logout unless logged-in
 def logout():
     # Upon submission of feedback response, flow will keep coming here
     oth_form = OtherAnswerForm()
     if request.method == 'POST':
-        if len(oth_form.oth_answer.data) > 0: # For 'text' questions, user response may be in form of text
+        if len(oth_form.oth_answer.data) > 0:  # For 'text' questions, user response may be in form of text
             fb_response = oth_form.oth_answer.data
         else:
             fb_response = request.form['options']
-        fb_response_lst.append(fb_response)  # Use DB to save this
         print('fb_qn_dict.keys() After control_flow to get next question:', fb_qn_dict.keys())
-        next_qn_id = control_flow(fb_response, fb_qn_lst[-1].qn_id)
-        next_fb_qn = fb_qn_dict[str(next_qn_id)]
-        if next_fb_qn.qn_type == 'message':
+        displayed_fb_qn_id = temp_fb_db('read-qn-id', '', '', '')
+        fb_qn_displayed = fb_qn_dict[str(displayed_fb_qn_id)]
+        to_be_displayed_qn_id = control_flow(fb_response, displayed_fb_qn_id)
+        to_be_displayed_fb_qn = fb_qn_dict[str(to_be_displayed_qn_id)]
+        if to_be_displayed_fb_qn.qn_type == 'message':
+            fb_qn_lst, fb_response_lst = temp_fb_db('read-list', '', '', '')
             save_to_feedback_db(fb_qn_lst, fb_response_lst)
+            deleted_recs = temp_fb_db('delete', '', '', '')
             logout_user()
-            flash(f' {next_fb_qn.qn} - Logged out successfully')
+            flash(f' {to_be_displayed_fb_qn.qn} - Logged out successfully, deleted - {deleted_recs} recs from temp db')
             return redirect(url_for('login'))
         else:
             print('fb_qn_dict.keys() on way to display feedback.html:', fb_qn_dict.keys())
-            fb_qn_lst.append(next_fb_qn)
-            answer_lst = next_fb_qn.answers.split('*')
-            if next_fb_qn.qn_type == 'radio-text':
+            temp_fb_db('update', fb_qn_displayed.qn, fb_response, to_be_displayed_qn_id)
+            answer_lst = to_be_displayed_fb_qn.answers.split('*')
+            if to_be_displayed_fb_qn.qn_type == 'radio-text':
                 oth_form.oth_answer.data = 'If Other, please enter details here'
             else:
                 oth_form.oth_answer.data = ''
             return render_template("feedback.html",
-                                    qn=fb_qn_lst[-1],
-                                    answer_lst = answer_lst,
-                                    oth_form = oth_form)
+                                   qn=to_be_displayed_fb_qn,
+                                   answer_lst=answer_lst,
+                                   oth_form=oth_form)
 
     # Upon clicking logout, Initial flow will come here
     qn_id = 1
     first_fb_qn = fb_qn_dict[str(qn_id)]
+    print('first_fb_qn:',first_fb_qn)
     print('fb_qn_dict.keys() Initial Flow:', fb_qn_dict.keys())
-    fb_qn_lst.append(first_fb_qn) # Use DB to save this
+    temp_fb_db('delete', '', '', '')
+    temp_fb_db('create', first_fb_qn.qn, '', qn_id)
     answer_lst = first_fb_qn.answers.split('*')
     return render_template("feedback.html",
-                           qn = fb_qn_lst[-1],
-                           answer_lst = answer_lst,
-                           oth_form = oth_form)
+                           qn=first_fb_qn,
+                           answer_lst=answer_lst,
+                           oth_form=oth_form)
+
 
 # Create dashboard page
-@app.route('/dashboard',methods=['GET','POST'])
+@app.route('/dashboard', methods=['GET', 'POST'])
 @login_required  # This will help reroute back to login page if not logged-in
 def dashboard():
     our_users = Users.query.order_by(Users.date_added)
     return render_template('dashboard.html',
                            our_users=our_users)
 
-#Create route decorator
+
+# Create route decorator
 @app.route('/')
 def index():
     message = ' <strong> Welcome...If new user, Please go to Register tab to sign-up </strong>'
     return render_template("index.html",
-                           message = message,
+                           message=message,
                            )
 
-# Show the feedbacks recorded as a list
-@app.route('/show_feedbacks', methods=['GET','POST'])
-@login_required # Don't allow to see feedbacks unless logged-in
-def show_feedbacks():
 
+# Show the feedbacks recorded as a list
+@app.route('/show_feedbacks', methods=['GET', 'POST'])
+@login_required  # Don't allow to see feedbacks unless logged-in
+def show_feedbacks():
     feedbacks_lst = []
     if current_user.role == 'admin':
-        feedbacks =Feedbacks.query.order_by(desc(Feedbacks.date_of_feedback)).all()
+        feedbacks = Feedbacks.query.order_by(desc(Feedbacks.date_of_feedback)).all()
 
         for fb in feedbacks:
-            fb_detail =  (fb.id, fb.feedback_giver_name, fb.date_of_feedback, fb.feedback_details)
+            fb_detail = (fb.id, fb.feedback_giver_name, fb.date_of_feedback, fb.feedback_details)
             feedbacks_lst.append(fb_detail)
 
         return render_template("show_feedbacks.html",
-                               feedbacks_lst =feedbacks_lst)
+                               feedbacks_lst=feedbacks_lst)
+
 
 # Delete individual feedbacks
-@app.route('/show_feedbacks/delete/<int:id>') # Pass ID of feedback to be deleted
-@login_required #Dont allow to delete feedback unless logged-in.
+@app.route('/show_feedbacks/delete/<int:id>')  # Pass ID of feedback to be deleted
+@login_required  # Dont allow to delete feedback unless logged-in.
 def delete_feedback(id):
     feedbacks = Feedbacks.query.order_by(desc(Feedbacks.date_of_feedback)).all()
     feedbacks_lst = []
     for fb in feedbacks:
-        fb_detail =  (fb.id, fb.feedback_giver_name, fb.date_of_feedback, fb.feedback_details)
+        fb_detail = (fb.id, fb.feedback_giver_name, fb.date_of_feedback, fb.feedback_details)
         feedbacks_lst.append(fb_detail)
 
     feedback_to_delete = Feedbacks.query.get_or_404(id)
@@ -232,12 +309,13 @@ def delete_feedback(id):
                 fb_detail = (fb.id, fb.feedback_giver_name, fb.date_of_feedback, fb.feedback_details)
                 feedbacks_lst.append(fb_detail)
             return render_template("show_feedbacks.html",
-                                   feedbacks_lst =feedbacks_lst)
+                                   feedbacks_lst=feedbacks_lst)
         except:
             flash('Couldnt delete feedback !')
             return render_template("show_feedbacks.html",
-                                   feedbacks_lst =feedbacks_lst)
+                                   feedbacks_lst=feedbacks_lst)
     else:
         flash(f'Feedback Cant be deleted. You are not authorized to delete this feedback')
         return render_template("show_feedbacks.html",
-                               feedbacks_lst =feedbacks_lst)
+                               feedbacks_lst=feedbacks_lst)
+

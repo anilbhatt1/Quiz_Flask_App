@@ -84,3 +84,12 @@ class Quiztemp(db.Model):
     next_qn_id = db.Column(db.Integer)
     quiz_taker_id = db.Column(db.Integer)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
+
+# Create model to store temp feedback data while logging out
+class Feedbacktemp(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    fb_qn_str = db.Column(db.String(500))
+    fb_response_str = db.Column(db.String(500))
+    fb_qn_id = db.Column(db.Integer)
+    feedback_taker_id = db.Column(db.Integer)
+    date_given = db.Column(db.DateTime, default=datetime.utcnow)

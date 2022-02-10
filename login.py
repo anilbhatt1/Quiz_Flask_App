@@ -95,8 +95,7 @@ def save_to_feedback_db(fb_qn_lst, fb_response_lst):
 
     feedback_db_str = ''
     for i in range(len(fb_response_lst)):
-        q_id = fb_qn_lst[i].qn_id
-        feedback_db_str += str(q_id) + '|' + str(fb_response_lst[i]) +'|'
+        feedback_db_str += str(fb_qn_lst[i]) + '|' + str(fb_response_lst[i]) +'|'
 
     feedback_details = feedback_db_str
 
@@ -143,26 +142,28 @@ def logout():
         if len(oth_form.oth_answer.data) > 0: # For 'text' questions, user response may be in form of text
             fb_response = oth_form.oth_answer.data
         else:
-            fb_response = request.form['options']
-        fb_response_lst.append(fb_response)  # Use DB to save this        
+            fb_response = request.form['options']     
         print('fb_qn_dict.keys() After control_flow to get next question:', fb_qn_dict.keys())
-        next_qn_id = control_flow(fb_response, fb_qn_lst[-1].qn_id)
-        next_fb_qn = fb_qn_dict[str(next_qn_id)]
-        if next_fb_qn.qn_type == 'message':
+        displayed_fb_qn_id = temp_fb_db('read-qn-id')
+        fb_qn_displayed = fb_qn_dict[str(displayed_fb_qn_id)]
+        to_be_displayed_qn_id = control_flow(fb_response, displayed_fb_qn_id)
+        to_be_displayed_fb_qn = fb_qn_dict[str(to_be_displayed_qn_id)]
+        if to_be_displayed_fb_qn.qn_type == 'message':
+            fb_qn_lst, fb_response_lst = temp_fb_db('read-list')
             save_to_feedback_db(fb_qn_lst, fb_response_lst)
             logout_user()
-            flash(f' {next_fb_qn.qn} - Logged out successfully')
+            flash(f' {to_be_displayed_fb_qn.qn} - Logged out successfully')
             return redirect(url_for('login'))
         else:
             print('fb_qn_dict.keys() on way to display feedback.html:', fb_qn_dict.keys())
-            fb_qn_lst.append(next_fb_qn)
-            answer_lst = next_fb_qn.answers.split('*')
-            if next_fb_qn.qn_type == 'radio-text':
+            temp_fb_db('update', fb_qn_displayed, fb_response, to_be_displayed_qn_id)            
+            answer_lst = to_be_displayed_fb_qn.answers.split('*')
+            if to_be_displayed_fb_qn.qn_type == 'radio-text':
                 oth_form.oth_answer.data = 'If Other, please enter details here'
             else:
                 oth_form.oth_answer.data = ''
             return render_template("feedback.html",
-                                    qn=fb_qn_lst[-1],
+                                    qn=to_be_displayed_fb_qn,
                                     answer_lst = answer_lst,
                                     oth_form = oth_form)
 
@@ -170,10 +171,11 @@ def logout():
     qn_id = 1
     first_fb_qn = fb_qn_dict[str(qn_id)]
     print('fb_qn_dict.keys() Initial Flow:', fb_qn_dict.keys()) 
-    fb_qn_lst.append(first_fb_qn) # Use DB to save this
+    temp_fb_db('delete', '', '', '')
+    temp_fb_db('create', first_fb_qn, '', qn_id)   
     answer_lst = first_fb_qn.answers.split('*')
     return render_template("feedback.html",
-                           qn = fb_qn_lst[-1],
+                           qn = first_fb_qn,
                            answer_lst = answer_lst,
                            oth_form = oth_form)
 
@@ -241,3 +243,5 @@ def delete_feedback(id):
         flash(f'Feedback Cant be deleted. You are not authorized to delete this feedback')
         return render_template("show_feedbacks.html",
                                feedbacks_lst =feedbacks_lst)
+                               
+                             
