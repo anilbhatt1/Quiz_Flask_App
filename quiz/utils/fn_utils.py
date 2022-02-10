@@ -230,6 +230,7 @@ def temp_quiz_db(method, response):
             recs_deleted += 1
         return recs_deleted
 
+# Function to prepare feedback questions and control logic based on the response for each feedback question
 def prep_feedback_data():
     with open('./feedback_template/fb_qn_statement.txt') as f:
         fb_qn_statement_lst = f.readlines()
@@ -270,3 +271,72 @@ def prep_feedback_data():
                                             fb_qn_if_wrong=fb_qn_if_wrong_)
 
     return fb_qn_dict, fb_logic_dict
+
+# Function to read/update temp_feedback DB
+def temp_fb_db(method, fb_qn, fb_response, fb_qn_id):
+    # Creating a record to temp_feedback DB. Initial create below will be having list of qn IDs to be used in quiz, their answers &.
+    # next qn id. As quiz progresses, this DB record created below will get updated with responses and next qn id to be shown.
+    if method == 'create':
+
+        feedback_taker_id = current_user.id
+        fb_temp = Feedbacktemp(fb_qn_str=fb_qn,
+                               fb_response_str='',
+                               fb_qn_id=fb_qn_id,
+                               feedback_taker_id=feedback_taker_id)
+
+        # Add the values to database
+        db.session.add(fb_temp)
+        db.session.commit()
+
+    # Fetching the feedback-question-id that got already displayed
+    elif method == 'read-qn-id':
+        fb_temp = Feedbacktemp.query.filter_by(feedback_taker_id=current_user.id).first()
+
+        return fb_temp.fb_qn_id
+
+    # Fetching the question_id_list used in quiz, their corresponding answers and user responses
+    elif method == 'read-list':
+        fb_temp = Feedbacktemp.query.filter_by(feedback_taker_id=current_user.id).first()
+
+        fb_qn_str = fb_temp.fb_qn_str
+        fb_qn_lst = fb_qn_str.split('|')
+
+        fb_response_str = fb_temp.fb_response_str
+        fb_response_lst = fb_response_str.split('|')
+
+        return fb_qn_lst, fb_response_lst
+
+    # Updating the response that user provided while taking the feedback and next question ID to be displayed
+    elif method == 'update':
+        fb_temp = Feedbacktemp.query.filter_by(feedback_taker_id=current_user.id).first()
+
+        fb_temp.fb_qn_id = fb_qn_id
+        fb_response_str = fb_temp.fb_response_str
+        if fb_response_str == '':  # response_str while creating the temp record was ''.Overwriting it with first response
+            fb_response_str = str(fb_response)
+        else:
+            fb_response_str = fb_response_str + '|' + str(fb_response)
+        fb_temp.fb_response_str = fb_response_str
+
+        fb_qn_str = fb_temp.fb_qn_str
+        if fb_qn_str == '':  # fb_qn_str while creating the temp record was ''.Overwriting it with first response
+            fb_qn_str = str(fb_qn)
+        else:
+            fb_qn_str = fb_qn_str + '|' + str(fb_qn)
+        fb_temp.fb_response_str = fb_response_str
+        fb_temp.fb_qn_str = fb_qn_str
+
+        # Updating the database record
+        db.session.commit()
+        return fb_qn_id
+
+    # Deleting the temp record belonging toe the current user-id
+    elif method == 'delete':
+        fb_temps = Feedbacktemp.query.filter_by(feedback_taker_id=current_user.id)
+        recs_deleted = 0
+        for fb_temp in fb_temps:
+            db.session.delete(fb_temp)
+            db.session.commit()
+            recs_deleted += 1
+        return recs_deleted
+
