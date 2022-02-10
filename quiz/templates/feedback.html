@@ -13,8 +13,6 @@
                 {% for choice in answer_lst %}
                     <input type="radio" name="options" id1={{ choice }} value={{ choice }} required> {{choice}} </input><br><br>
                 {% endfor %}
-                {{ oth_form.oth_answer.label(class="form-label") }}
-                {{ oth_form.oth_answer(class="form-control") }}
             {% elif qn.qn_type == 'text' %}
                 {{ oth_form.oth_answer.label(class="form-label") }}
                 {{ oth_form.oth_answer(class="form-control") }}

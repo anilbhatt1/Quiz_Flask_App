@@ -26,8 +26,6 @@ fb_response_lst = []
 fb_qn_dict, fb_logic_dict = prep_feedback_data()
 
 def control_flow(fb_response, fb_qn_id):
-    print('fb_logic_dict.keys() inside control_flow:', fb_logic_dict.keys())
-    print('fb_qn_dict.keys() inside control_flow:', fb_qn_dict.keys())
     fb_logic = fb_logic_dict[str(fb_qn_id)]
     fb_qn = fb_qn_dict[str(fb_qn_id)]
     if fb_qn.correct_answer == fb_response:
@@ -98,7 +96,11 @@ def temp_fb_db(method, fb_qn, fb_response, fb_qn_id):
         fb_temp.fb_response_str = fb_response_str
 
         fb_qn_str = fb_temp.fb_qn_str
-        fb_qn_str = fb_qn_str + '|' + str(fb_qn)
+        if fb_qn_str == '':  # fb_qn_str while creating the temp record was ''.Overwriting it with first response
+            fb_qn_str = str(fb_qn)
+        else:
+            fb_qn_str = fb_qn_str + '|' + str(fb_qn)
+        fb_temp.fb_response_str = fb_response_str
         fb_temp.fb_qn_str = fb_qn_str
 
         # Updating the database record
@@ -136,7 +138,6 @@ def save_to_feedback_db(fb_qn_lst, fb_response_lst):
 def load_user(user_id):
     return Users.query.get(int(user_id))
 
-
 # Create login page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -158,7 +159,6 @@ def login():
 
     return render_template('login.html', form=form)
 
-
 # Create logout page
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required  # We can't logout unless logged-in
@@ -170,12 +170,12 @@ def logout():
             fb_response = oth_form.oth_answer.data
         else:
             fb_response = request.form['options']
-        print('fb_qn_dict.keys() After control_flow to get next question:', fb_qn_dict.keys())
         displayed_fb_qn_id = temp_fb_db('read-qn-id', '', '', '')
         fb_qn_displayed = fb_qn_dict[str(displayed_fb_qn_id)]
         to_be_displayed_qn_id = control_flow(fb_response, displayed_fb_qn_id)
         to_be_displayed_fb_qn = fb_qn_dict[str(to_be_displayed_qn_id)]
         if to_be_displayed_fb_qn.qn_type == 'message':
+            temp_fb_db('update', fb_qn_displayed.qn, fb_response, to_be_displayed_qn_id)
             fb_qn_lst, fb_response_lst = temp_fb_db('read-list', '', '', '')
             save_to_feedback_db(fb_qn_lst, fb_response_lst)
             deleted_recs = temp_fb_db('delete', '', '', '')
@@ -183,7 +183,6 @@ def logout():
             flash(f' {to_be_displayed_fb_qn.qn} - Logged out successfully, deleted - {deleted_recs} recs from temp db')
             return redirect(url_for('login'))
         else:
-            print('fb_qn_dict.keys() on way to display feedback.html:', fb_qn_dict.keys())
             temp_fb_db('update', fb_qn_displayed.qn, fb_response, to_be_displayed_qn_id)
             answer_lst = to_be_displayed_fb_qn.answers.split('*')
             if to_be_displayed_fb_qn.qn_type == 'radio-text':
@@ -198,10 +197,8 @@ def logout():
     # Upon clicking logout, Initial flow will come here
     qn_id = 1
     first_fb_qn = fb_qn_dict[str(qn_id)]
-    print('first_fb_qn:',first_fb_qn)
-    print('fb_qn_dict.keys() Initial Flow:', fb_qn_dict.keys())
     temp_fb_db('delete', '', '', '')
-    temp_fb_db('create', first_fb_qn.qn, '', qn_id)
+    temp_fb_db('create', '', '', qn_id)
     answer_lst = first_fb_qn.answers.split('*')
     return render_template("feedback.html",
                            qn=first_fb_qn,
