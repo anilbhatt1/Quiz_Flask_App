@@ -20,7 +20,6 @@ fb_logic_dict = {}
 fb_qn_lst = []
 fb_response_lst = []
 
-
 fb_qn_dict, fb_logic_dict = prep_feedback_data()
 
 def control_flow(fb_response, fb_qn_id):
@@ -33,35 +32,6 @@ def control_flow(fb_response, fb_qn_id):
             return fb_logic.fb_qn_if_correct
         else:
             return fb_logic.fb_qn_if_wrong
-
-def make_display_list(qn_id):
-    fb_qn = fb_qn_dict[qn_id]
-    qn_lst_temp = fb_qn.qn.split('|')
-    qn_type_lst_temp = fb_qn.qn_type.split('|')
-    ans_lst_temp = fb_qn.answers.split('|')
-    qn_ans_lst_temp = list(zip(qn_lst_temp, qn_type_lst_temp, ans_lst_temp))
-    display_lst = list()
-    for quest, quest_type, ans in qn_ans_lst_temp:
-        tup = (quest, quest_type, ans.split('*'))
-        display_lst.append(tup)
-    return display_lst, fb_qn
-
-# Saving the details to Feedback DB before logout
-def save_to_feedback_db(fb_qn_lst, fb_response_lst):
-    feedback_db_str = ''
-    for i in range(len(fb_response_lst)):
-        feedback_db_str += str(fb_qn_lst[i]) + '|' + str(fb_response_lst[i]) + '|'
-
-    feedback_details = feedback_db_str
-
-    feedbacks = Feedbacks(feedback_details=feedback_details,
-                          feedback_giver_name=current_user.username)
-
-    db.session.add(feedbacks)
-    db.session.commit()
-    fb_qn_lst.clear()
-    fb_response_lst.clear()
-
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -134,7 +104,6 @@ def logout():
                            answer_lst=answer_lst,
                            oth_form=oth_form)
 
-
 # Create dashboard page
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required  # This will help reroute back to login page if not logged-in
@@ -143,7 +112,6 @@ def dashboard():
     return render_template('dashboard.html',
                            our_users=our_users)
 
-
 # Create route decorator
 @app.route('/')
 def index():
@@ -151,7 +119,6 @@ def index():
     return render_template("index.html",
                            message=message,
                            )
-
 
 # Show the feedbacks recorded as a list
 @app.route('/show_feedbacks', methods=['GET', 'POST'])
@@ -167,7 +134,6 @@ def show_feedbacks():
 
         return render_template("show_feedbacks.html",
                                feedbacks_lst=feedbacks_lst)
-
 
 # Delete individual feedbacks
 @app.route('/show_feedbacks/delete/<int:id>')  # Pass ID of feedback to be deleted

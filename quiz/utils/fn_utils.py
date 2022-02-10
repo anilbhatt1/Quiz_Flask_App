@@ -340,3 +340,19 @@ def temp_fb_db(method, fb_qn, fb_response, fb_qn_id):
             recs_deleted += 1
         return recs_deleted
 
+# Saving the details to Feedback DB before logout
+def save_to_feedback_db(fb_qn_lst, fb_response_lst):
+    feedback_db_str = ''
+    for i in range(len(fb_response_lst)):
+        feedback_db_str += str(fb_qn_lst[i]) + '|' + str(fb_response_lst[i]) + '|'
+
+    feedback_details = feedback_db_str
+
+    feedbacks = Feedbacks(feedback_details=feedback_details,
+                          feedback_giver_name=current_user.username)
+
+    db.session.add(feedbacks)
+    db.session.commit()
+    fb_qn_lst.clear()
+    fb_response_lst.clear()
+
