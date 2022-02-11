@@ -15,12 +15,12 @@
     {% for question in questions %}
         <div class="shadow-none p-3 mb-5 bg-light rounded">
             <h3><a href="{{url_for('question', id=question.id)}}"> {{ question.question[:100] | safe }} </a></h3><br/>
-            <small>Written By : {{ question.qn_creator.name }}<br/>
+            <small>Created By : {{ question.qn_creator.name }}<br/>
                    Question ID : {{ question.id }}<br>
                    Question Type :  {{ question.question_type }}<br/>
                    Question Category : {{ question.question_category }}<br/>
                    Active Flag : {{ question.active_flag }}<br>
-                   Date Written : {{ question.date_added }}<br/>
+                   Date Created : {{ question.date_added }}<br/>
                    Answer :  {{question.answer}}</small><br/><br/>
             {% if question.answer == 'other' %}
                 <small>Other_answer : {{ question.other_answer | safe }}</small><br/>

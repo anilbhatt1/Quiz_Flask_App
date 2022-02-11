@@ -1,9 +1,4 @@
 from quiz import app, db
-from flask import Flask, render_template, flash, redirect, url_for
-from flask_login import login_required, current_user
-from flask_ckeditor import  CKEditor, CKEditorField
-from quiz.forms import *
-from quiz.db_models import *
 from quiz.utils import *
 
 accepted_qn_types = ['Fill-In-The Blank','text qn - image answer','image qn - text answer','multiple-choice']

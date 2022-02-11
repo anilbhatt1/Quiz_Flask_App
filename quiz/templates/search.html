@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <br/>
+    <h4> You searched for : <em>{{ searched }}</em></h4>
+
+    <br/>
+    {% if current_user.role == 'admin' or current_user.role == 'creator' %}
+        {% if qns %}
+            <h4> Questions matching your search are as below</h4>
+            <br/>
+            <br/>
+            {% for qn in qns %}
+                <div class="shadow-none p-3 mb-5 bg-light rounded">
+                    <h3><a href="{{url_for('question', id=qn.id)}}"> {{ qn.question|safe }} </a></h3><br/>
+                    <small>Created By : {{ qn.qn_creator.name }}<br/>
+                           Date Created : {{ qn.date_added }}</small><br/>
+
+                </div>
+            {% endfor %}
+        {% else %}
+            Your search for <strong>{{ searched }}</strong> did not yield any results
+        {% endif %}
+    {% else %}
+        Search Questions is available only for admins and creators. Your current role - <strong>{{ current_user.role }}</strong> - dont have access.
+    {% endif %}
+{% endblock %}

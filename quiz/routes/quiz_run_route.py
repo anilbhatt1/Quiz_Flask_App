@@ -1,8 +1,4 @@
-from quiz import app, db
-from flask import Flask, render_template, flash, request, redirect, url_for
-from flask_login import login_required, current_user
-from quiz.forms import *
-from quiz.db_models import *
+from quiz import app
 from quiz.utils import *
 
 user_response= ''

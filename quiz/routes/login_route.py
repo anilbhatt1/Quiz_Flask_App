@@ -5,9 +5,7 @@ from quiz.forms import *
 from quiz.db_models import *
 from flask import Flask, render_template, flash, request, redirect, url_for
 from quiz.utils import *
-from pandas import read_excel
 from collections import namedtuple
-import re
 from sqlalchemy import desc
 
 # Flask login requisites
@@ -22,6 +20,9 @@ fb_response_lst = []
 
 fb_qn_dict, fb_logic_dict = prep_feedback_data()
 
+# This function will provide the next question-id based on the previous question-id and its corresponding response
+# Questions are created as named tuples in the format -> namedtuple('fb_qn', 'qn_id qn qn_type answers correct_answer')
+# Logics are also created as named tuples in the format -> namedtuple('fb_logic', 'fb_qn fb_qn_if_correct fb_qn_if_wrong')
 def control_flow(fb_response, fb_qn_id):
     fb_logic = fb_logic_dict[str(fb_qn_id)]
     fb_qn = fb_qn_dict[str(fb_qn_id)]

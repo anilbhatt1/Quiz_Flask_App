@@ -11,11 +11,11 @@
 
     <div class="shadow-none p-3 mb-5 bg-light rounded">
              <h2>{{ question.question | safe }}</h2><br/>
-             <small>Written By : {{ question.qn_creator.name }}<br/>
+             <small>Created By : {{ question.qn_creator.name }}<br/>
                     Question Type :  {{ question.question_type }}<br/>
                     Question Category : {{ question.question_category }}<br/>
                     Active Flag : {{ question.active_flag }}<br>
-                    Date Written : {{ question.date_added }}</small><br/><br/>
+                    Date Created : {{ question.date_added }}</small><br/><br/>
 
             {% if question.question_type == 'text qn - image answer' %}
                 {% for (num, image) in image_choices %}

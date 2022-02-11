@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
-from wtforms.validators import DataRequired, EqualTo, Length
-from flask_ckeditor import  CKEditor, CKEditorField
+from wtforms import StringField, SubmitField, PasswordField
+from wtforms.validators import DataRequired, EqualTo
+from flask_ckeditor import CKEditorField
 from flask_wtf.file import FileField, FileAllowed
 
 # Create a login form
@@ -50,3 +50,8 @@ class QuestionForm(FlaskForm):
 # Create a Form class to host other answer(Fill in the blank) while taking the quiz
 class OtherAnswerForm(FlaskForm):
     oth_answer = StringField("Enter the answer", validators = [DataRequired()])
+
+# Create a search form
+class SearchForm(FlaskForm):
+    searched = StringField("Searched", validators=[DataRequired()])
+    submit = SubmitField("Submit")
