@@ -6,6 +6,7 @@ from quiz.db_models import *
 from pandas import read_excel
 from collections import namedtuple
 import re
+from flask_login import login_required, current_user
 
 num_quiz_questions = 5
 qn_answer = ''
@@ -87,21 +88,57 @@ def calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_ls
             response = answer_map_dict[quiz_response_lst[i]]
             quiz_answer_lst[i] = 'Option-' + str(answer)
             quiz_response_lst[i] = 'Option-' + str(response)
-        else:     # Answer will be a text response for Fill In The Blanks questions
-            non_html_answer = remove_html_tags(quiz_answer_lst[i])
-            answer = "".join(non_html_answer.split()).lower()
-            response = "".join(quiz_response_lst[i].split()).lower()  # eg : 'aBc d' quiz_response_lst[i].split() -> ['aBc','d']
-                                                                      # "".join(quiz_response_lst[i].split()) -> 'aBcd'
-                                                                      # "".join(quiz_response_lst[i].split()).lower() -> 'abcd'
-            quiz_answer_lst[i] = answer # Replacing the answer retrieved from DB after removing html tags, spaces & making everything lower cases
-            quiz_response_lst[i] = response # Replacing the response from Quiz portal after removing spaces & making everything lower case
-        if answer == response:
-            quiz_score_lst.append(str(1))
-            score += 1
-        else:
-            quiz_score_lst.append(str(0))
-        total += 1
-        quiz_possible_score_lst.append(str(1))
+        else:     # Answer will be a text response for Fill In The Blank/s questions
+            if '*' in quiz_answer_lst[i]:   # Handling Fill In The Blanks
+                ans_lst = quiz_answer_lst[i].split('*')
+                ans1 = ans_lst[0]
+                ans2 = ans_lst[1]
+                non_html_ans1 = remove_html_tags(ans1)
+                non_html_ans2 = remove_html_tags(ans2)
+                answer1 = "".join(non_html_ans1.split()).lower()
+                answer2 = "".join(non_html_ans2.split()).lower()
+                answer = answer1 + '*' + answer2
+
+                res_lst = quiz_response_lst[i].split('*')
+                res1 = res_lst[0]
+                res2 = res_lst[1]
+                response1 = "".join(res1.split()).lower()
+                response2 = "".join(res2.split()).lower()
+                response = response1 + '*' + response2
+
+                quiz_answer_lst[i] = answer # Replacing the answer retrieved from DB after removing html tags, spaces & making everything lower cases
+                quiz_response_lst[i] = response # Replacing the response from Quiz portal after removing spaces & making everything lower case
+
+            else:
+                non_html_answer = remove_html_tags(quiz_answer_lst[i])
+                answer = "".join(non_html_answer.split()).lower()
+                response = "".join(quiz_response_lst[i].split()).lower()  # eg : 'aBc d' quiz_response_lst[i].split() -> ['aBc','d']
+                                                                          # "".join(quiz_response_lst[i].split()) -> 'aBcd'
+                                                                          # "".join(quiz_response_lst[i].split()).lower() -> 'abcd'
+                quiz_answer_lst[i] = answer # Replacing the answer retrieved from DB after removing html tags, spaces & making everything lower cases
+                quiz_response_lst[i] = response # Replacing the response from Quiz portal after removing spaces & making everything lower case
+
+        if '*' in str(answer):   # For Fill-in-the-BlankS
+            quiz_score_temp = 0
+            if answer1 == response1:
+                quiz_score_temp +=1
+                score += 1
+
+            if answer2 == response2:
+                quiz_score_temp += 1
+                score += 1
+
+            quiz_score_lst.append(str(quiz_score_temp))
+            total += 2
+            quiz_possible_score_lst.append(str(2))
+        else:            # For Fill-in-the-Blank & other questions
+            if answer == response:
+                quiz_score_lst.append(str(1))
+                score += 1
+            else:
+                quiz_score_lst.append(str(0))
+            total += 1
+            quiz_possible_score_lst.append(str(1))
 
     quiz_details = current_user.username + '^' + \
                    "|".join(quiz_question_id_lst) + '^' + \
@@ -143,8 +180,10 @@ def temp_quiz_db(method, response):
         questions = Questions.query.order_by(Questions.id)
         for qn in questions:
             if qn.active_flag == 'Active':
-                if qn.question_type == 'Fill-In-The Blank':  # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer' column in DB
-                    qn_answer = qn.other_answer
+                if qn.question_type == 'Fill-In-The Blank':  # For 'Fill-In-The-Blank' questions answer will be stored in 'other_answer1' column in DB
+                    qn_answer = qn.other_answer1
+                elif qn.question_type == 'Fill-In-The Blanks':  # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer1' & 'other_answer2' columns in DB
+                    qn_answer = qn.other_answer1 + '*' + qn.other_answer2
                 else:
                     qn_answer = qn.answer
                 qn_id = qn.id

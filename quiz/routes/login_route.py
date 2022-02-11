@@ -80,7 +80,7 @@ def logout():
             save_to_feedback_db(fb_qn_lst, fb_response_lst)
             deleted_recs = temp_fb_db('delete', '', '', '')
             logout_user()
-            flash(f' {to_be_displayed_fb_qn.qn} - Logged out successfully, deleted - {deleted_recs} recs from temp db')
+            flash(f' {to_be_displayed_fb_qn.qn} - Logged out successfully !')
             return redirect(url_for('login'))
         else:
             temp_fb_db('update', fb_qn_displayed.qn, fb_response, to_be_displayed_qn_id)

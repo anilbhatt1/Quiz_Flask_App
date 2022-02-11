@@ -40,6 +40,11 @@
             {% elif question.question_type == 'Fill-In-The Blank' %}
                 {{ oth_form.oth_answer.label(class="form-label") }}
                 {{ oth_form.oth_answer(class="form-control") }}
+            {% elif question.question_type == 'Fill-In-The Blanks' %}
+                {{ oth_form.oth_answer1.label(class="form-label") }}
+                {{ oth_form.oth_answer1(class="form-control") }}
+                {{ oth_form.oth_answer2.label(class="form-label") }}
+                {{ oth_form.oth_answer2(class="form-control") }}
             {% else %}
                 <h3> Other type </h3>
             {% endif %}

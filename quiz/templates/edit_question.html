@@ -113,9 +113,13 @@
               Current Answer :  <strong>{{ form.answer }}</strong><br>If you wish to change, select from {{ answer_types }}.
               <br>
               <br/>
-              {{ form.other_answer.label(class="form-label") }}
+              {{ form.other_answer1.label(class="form-label") }}
               <br/>
-              Current Answer :  <strong>{{ form.other_answer }}</strong><br>Edit if you wish to change the answer.
+              Current Answer :  <strong>{{ form.other_answer1 }}</strong><br>Edit if you wish to change the answer.
+              <br/>
+              {{ form.other_answer2.label(class="form-label") }}
+              <br/>
+              Current Answer :  <strong>{{ form.other_answer2 }}</strong><br>Edit if you wish to change the answer.
               <br/>
               <br/>
               {{ form.submit(class="btn btn-secondary") }}

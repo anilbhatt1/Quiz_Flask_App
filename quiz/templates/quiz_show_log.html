@@ -38,8 +38,20 @@
                     Option4 : {{question.choice4}} <br><br>
                     Option5 : {{question.choice5}} <br><br>
                 {% endif %}
-                <strong>Answer : </strong>{{answer}}<br>
-                <strong>Response  : </strong>{{response}}<br>
+
+                {% if question.question_type == 'Fill-In-The Blanks' %}
+                    {% for ans in answer.split('*') %}
+                        <strong>Answer {{loop.index}} : </strong>{{ans}}<br>
+                    {% endfor %}
+                    <br>
+                    {% for res in response.split('*') %}
+                        <strong>Response {{loop.index}} : </strong>{{res}}<br>
+                    {% endfor %}
+                {% else %}
+                    <strong>Answer : </strong>{{answer}}<br>
+                    <strong>Response  : </strong>{{response}}<br>
+                {% endif %}
+
                 <strong>Score : </strong>{{qn_score}} / {{qn_possible_score}}
                 <hr><br>
             {% endfor %}

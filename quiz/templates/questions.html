@@ -23,7 +23,8 @@
                    Date Created : {{ question.date_added }}<br/>
                    Answer :  {{question.answer}}</small><br/><br/>
             {% if question.answer == 'other' %}
-                <small>Other_answer : {{ question.other_answer | safe }}</small><br/>
+                <small>Other_answer1 : {{ question.other_answer1 | safe }}</small><br/>
+                <small>Other_answer2 : {{ question.other_answer2 | safe }}</small><br/>
             {% endif %}
 
             <a href="{{url_for('question', id=question.id)}}" class="btn btn-secondary btn-sm"> View Question </a>

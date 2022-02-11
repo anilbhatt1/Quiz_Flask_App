@@ -53,7 +53,8 @@ class Questions(db.Model):
     image4 = db.Column(db.String(150))
     image5 = db.Column(db.String(150))
     answer = db.Column(db.String(20), nullable=False)
-    other_answer = db.Column(db.String(250))
+    other_answer1 = db.Column(db.String(250))
+    other_answer2 = db.Column(db.String(250))
     active_flag = db.Column(db.String(10))  #'Active' & 'Inactive'
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     qn_creator_id = db.Column(db.Integer, db.ForeignKey('users.id'))

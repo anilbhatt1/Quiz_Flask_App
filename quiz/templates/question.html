@@ -46,7 +46,8 @@
             {% endif %}
 
             {% if question.answer == 'other' %}
-                <small>Other_answer : {{ question.other_answer | safe }}</small><br/>
+                <small>Other_answer1 : {{ question.other_answer1 | safe }}</small><br/>
+                <small>Other_answer2 : {{ question.other_answer2 | safe }}</small><br/>
             {% else %}
                 <small>Answer : {{ question.answer | safe }}</small><br/>
             {% endif %}

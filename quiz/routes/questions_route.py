@@ -1,7 +1,12 @@
 from quiz import app, db
+from flask import Flask, render_template, flash, redirect, url_for
+from flask_login import login_required, current_user
+from flask_ckeditor import  CKEditor, CKEditorField
+from quiz.forms import *
+from quiz.db_models import *
 from quiz.utils import *
 
-accepted_qn_types = ['Fill-In-The Blank','text qn - image answer','image qn - text answer','multiple-choice']
+accepted_qn_types = ['Fill-In-The Blank','Fill-In-The Blanks','text qn - image answer','image qn - text answer','multiple-choice']
 accepted_qn_categories = ['Geography', 'History']
 answer_types = ['image1', 'image2', 'image3', 'image4', 'image5', 'other',
                 'choice1', 'choice2', 'choice3', 'choice4', 'choice5']
@@ -29,7 +34,8 @@ def add_question():
                              image3=image_filename_list[2],
                              image4=image_filename_list[3],
                              image5=image_filename_list[4],
-                             other_answer=form.other_answer.data,
+                             other_answer1=form.other_answer1.data,
+                             other_answer2=form.other_answer2.data,
                              active_flag='Active',
                              qn_creator_id = qn_creator,  # We are passing current_user.id as qn_creator_id (foreign key). This will get saved in DB
                              answer=form.answer.data)
@@ -48,7 +54,8 @@ def add_question():
         form.image4.data = ''
         form.image5.data = ''
         form.answer.data = ''
-        form.other_answer.data = ''
+        form.other_answer1.data = ''
+        form.other_answer2.data = ''
         form.active_flag = ''
 
         # Add the values entered web via form to database
@@ -178,7 +185,8 @@ def edit_question(id):
         question.image3 = image_filename_list[2]
         question.image4 = image_filename_list[3]
         question.image5 = image_filename_list[4]
-        question.other_answer = form.other_answer.data
+        question.other_answer1 = form.other_answer1.data
+        question.other_answer2 = form.other_answer2.data
         question.active_flag = 'Active'
         # Update database
         db.session.commit()
@@ -205,7 +213,8 @@ def edit_question(id):
         form.choice4.data = question.choice4
         form.choice5.data = question.choice5
         form.answer.data = question.answer
-        form.other_answer.data = question.other_answer
+        form.other_answer1.data = question.other_answer1
+        form.other_answer2.data = question.other_answer2
         form.active_flag = question.active_flag
         return render_template('edit_question.html',
                                 form=form,
