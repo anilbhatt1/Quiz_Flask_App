@@ -51,8 +51,8 @@ def extract_log_details(log, display_type):
     string_lst = details.split('^')
     quiz_taker_username = string_lst[0]
     quiz_question_id_lst = string_lst[1].split('|')
-    quiz_answer_lst = string_lst[2].split('|')
-    quiz_response_lst = string_lst[3].split('|')
+    quiz_response_lst = string_lst[2].split('|')
+    quiz_answer_lst = string_lst[3].split('|')
     quiz_score_lst = string_lst[4].split('|')
     quiz_possible_score_lst = string_lst[5].split('|')
     quiz_score = string_lst[6]
