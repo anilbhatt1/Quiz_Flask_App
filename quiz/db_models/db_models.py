@@ -82,6 +82,7 @@ class Quiztemp(db.Model):
     qn_id_str = db.Column(db.String(200))
     answer_str = db.Column(db.String(500))
     response_str = db.Column(db.String(500))
+    qn_type_str = db.Column(db.String(500))
     next_qn_id = db.Column(db.Integer)
     quiz_taker_id = db.Column(db.Integer)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)

@@ -28,8 +28,8 @@ def start_quiz():
            next_qn_id = temp_quiz_db('read-next-qn-id', '')
 
         if next_qn_id == 9999:  # Upon end-of questions, next_qn_id will be updated with 9999
-            quiz_question_id_lst, quiz_answer_lst, quiz_response_lst = temp_quiz_db('read', '')
-            quiz_score, quiz_total = calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst,
+            quiz_question_id_lst, quiz_answer_lst, quiz_response_lst, quiz_qn_type_lst = temp_quiz_db('read', '')
+            quiz_score, quiz_total = calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst, quiz_qn_type_lst,
                                                           current_user.id)
             _ = temp_quiz_db('delete', '')
             flash(f'Quiz completed successfully ! ')

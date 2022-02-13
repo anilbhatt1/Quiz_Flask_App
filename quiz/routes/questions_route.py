@@ -6,7 +6,7 @@ from quiz.forms import *
 from quiz.db_models import *
 from quiz.utils import *
 
-accepted_qn_types = ['Fill-In-The Blank','Fill-In-The Blanks','text qn - image answer','image qn - text answer','multiple-choice']
+accepted_qn_types = ['Fill-In-The Blank','Fill-In-The Blanks','numeric','text qn - image answer','image qn - text answer','multiple-choice']
 accepted_qn_categories = ['Geography', 'History']
 answer_types = ['image1', 'image2', 'image3', 'image4', 'image5', 'other',
                 'choice1', 'choice2', 'choice3', 'choice4', 'choice5']

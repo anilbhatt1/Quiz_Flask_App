@@ -37,7 +37,7 @@
                 <input type="radio" name="options" id="option3" value="option3" required> {{question.choice3}} </input><br><br>
                 <input type="radio" name="options" id="option4" value="option4" required> {{question.choice4}} </input><br><br>
                 <input type="radio" name="options" id="option5" value="option5" required> {{question.choice5}} </input><br><br>
-            {% elif question.question_type == 'Fill-In-The Blank' %}
+            {% elif question.question_type == 'Fill-In-The Blank' or question.question_type == 'numeric'%}
                 {{ oth_form.oth_answer.label(class="form-label") }}
                 {{ oth_form.oth_answer(class="form-control") }}
             {% elif question.question_type == 'Fill-In-The Blanks' %}
@@ -45,8 +45,6 @@
                 {{ oth_form.oth_answer1(class="form-control") }}
                 {{ oth_form.oth_answer2.label(class="form-label") }}
                 {{ oth_form.oth_answer2(class="form-control") }}
-            {% else %}
-                <h3> Other type </h3>
             {% endif %}
             <input type="submit" value="Next">
             </form>

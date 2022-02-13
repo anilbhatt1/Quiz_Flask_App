@@ -7,8 +7,9 @@ from pandas import read_excel
 from collections import namedtuple
 import re
 from flask_login import login_required, current_user
+from fractions import Fraction
 
-num_quiz_questions = 5
+num_quiz_questions = 6
 qn_answer = ''
 quiz_score_lst = []
 quiz_possible_score_lst = []
@@ -79,16 +80,20 @@ def extract_log_details(log, display_type):
         return (quiz_log_id, quiz_taker_username, len(quiz_question_id_lst), quiz_score, quiz_total, quiz_taken_date)
 
 # Function to calculate the quiz score upon attempting all the questions and save the details to Quizlogs DB
-def calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst, user_id):
+def calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst, quiz_qn_type_lst, user_id):
     score = 0
     total = 0
+
+    regex = re.compile(r'[\n\r\t]')
     for i in range(len(quiz_response_lst)):
+        answer = ''
+        response = ''
         if quiz_answer_lst[i] in answer_types:
             answer = answer_map_dict[quiz_answer_lst[i]]
             response = answer_map_dict[quiz_response_lst[i]]
             quiz_answer_lst[i] = 'Option-' + str(answer)
             quiz_response_lst[i] = 'Option-' + str(response)
-        else:     # Answer will be a text response for Fill In The Blank/s questions
+        else:     # Answer will be a text response for Fill In The Blank/s and numeric type of questions
             if '*' in quiz_answer_lst[i]:   # Handling Fill In The Blanks
                 ans_lst = quiz_answer_lst[i].split('*')
                 ans1 = ans_lst[0]
@@ -108,15 +113,62 @@ def calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_ls
 
                 quiz_answer_lst[i] = answer # Replacing the answer retrieved from DB after removing html tags, spaces & making everything lower cases
                 quiz_response_lst[i] = response # Replacing the response from Quiz portal after removing spaces & making everything lower case
+            else:        # Handling Fill In The Blank
+                if quiz_qn_type_lst[i] != 'numeric':
+                    non_html_answer = remove_html_tags(quiz_answer_lst[i])
+                    answer = "".join(non_html_answer.split()).lower()
+                    response = "".join(quiz_response_lst[i].split()).lower()  # eg : 'aBc d' quiz_response_lst[i].split() -> ['aBc','d']
+                                                                              # "".join(quiz_response_lst[i].split()) -> 'aBcd'
+                                                                              # "".join(quiz_response_lst[i].split()).lower() -> 'abcd'
+                    quiz_answer_lst[i] = answer # Replacing the answer retrieved from DB after removing html tags, spaces & making everything lower cases
+                    quiz_response_lst[i] = response # Replacing the response from Quiz portal after removing spaces & making everything lower case
 
+        if quiz_qn_type_lst[i] == 'numeric':  # Handling numeric questions
+            non_html_answer = remove_html_tags(quiz_answer_lst[i])
+            non_html_answer = "".join(non_html_answer.split()).lower()
+            answer = round(float(non_html_answer), 2)
+
+            numeric_response = quiz_response_lst[i]
+            non_html_response = remove_html_tags(numeric_response)
+            non_space_response = regex.sub("", non_html_response).strip()
+
+            if '/' in non_space_response:
+                numeric_response_lst = non_space_response.split('/')
+                if len(numeric_response_lst) != 2:
+                    response = 'Not-a-numeric-response'
+                else:
+                    for idx, num_str in enumerate(numeric_response_lst):
+                        if num_str.strip().isnumeric():
+                            numeric_response_lst[idx] = int(num_str.strip())
+                        else:
+                            response = 'Not-a-numeric-response'
+                            break
+                    if response != "Not-a-numeric-response":
+                        response = round(float(Fraction(numeric_response_lst[0], numeric_response_lst[1])), 2)
+            elif '.' in non_space_response:
+                numeric_response_lst = non_space_response.split('.')
+                if len(numeric_response_lst) != 2:
+                    response = 'Not-a-numeric-response'
+                else:
+                    for num_str in numeric_response_lst:
+                        if num_str.isnumeric():
+                            pass
+                        else:
+                            response = 'Not-a-numeric-response'
+                            break
+                    if response != 'Not-a-numeric-response':
+                        response = round(float(non_space_response), 2)
             else:
-                non_html_answer = remove_html_tags(quiz_answer_lst[i])
-                answer = "".join(non_html_answer.split()).lower()
-                response = "".join(quiz_response_lst[i].split()).lower()  # eg : 'aBc d' quiz_response_lst[i].split() -> ['aBc','d']
-                                                                          # "".join(quiz_response_lst[i].split()) -> 'aBcd'
-                                                                          # "".join(quiz_response_lst[i].split()).lower() -> 'abcd'
-                quiz_answer_lst[i] = answer # Replacing the answer retrieved from DB after removing html tags, spaces & making everything lower cases
-                quiz_response_lst[i] = response # Replacing the response from Quiz portal after removing spaces & making everything lower case
+                if non_space_response.isnumeric():
+                    response = round(float(non_space_response), 2)
+                else:
+                    response = 'Not-a-numeric-response'
+
+            quiz_answer_lst[i] = str(answer)
+            if type(response) is float or type(response) is int:
+                quiz_response_lst[i] = numeric_response + ' (Note: Response rounded to 2 decimal places - ' + str(response) + ' )'
+            else:
+                quiz_response_lst[i] = numeric_response
 
         if '*' in str(answer):   # For Fill-in-the-BlankS
             quiz_score_temp = 0
@@ -177,34 +229,41 @@ def temp_quiz_db(method, response):
         quiz_qn_list = []
         quiz_qn_id_list = []
         quiz_qn_ans_list = []
+        quiz_qn_type_list = []
         questions = Questions.query.order_by(Questions.id)
         for qn in questions:
             if qn.active_flag == 'Active':
                 if qn.question_type == 'Fill-In-The Blank':  # For 'Fill-In-The-Blank' questions answer will be stored in 'other_answer1' column in DB
+                    qn_answer = qn.other_answer1
+                elif qn.question_type == 'numeric':  # For 'numeric' questions answer will be stored in 'other_answer1' column in DB
                     qn_answer = qn.other_answer1
                 elif qn.question_type == 'Fill-In-The Blanks':  # For 'Fill-In-The-Blanks' questions answer will be stored in 'other_answer1' & 'other_answer2' columns in DB
                     qn_answer = qn.other_answer1 + '*' + qn.other_answer2
                 else:
                     qn_answer = qn.answer
                 qn_id = qn.id
-                tup = (qn_id, qn_answer)
+                qn_type = qn.question_type
+                tup = (qn_id, qn_answer, qn_type)
                 quiz_qn_list.append(tup)
 
         random.shuffle(quiz_qn_list)      # Randomly shuffling the questions
         quiz_qn_list = quiz_qn_list[:num_quiz_questions]    # Selecting number of questions to be used in the quiz
 
         # Preparing string of question Ids, their answers and ID of first qn to be displayed in the quiz.
-        for qn_id, ans in quiz_qn_list:
+        for qn_id, ans, qn_type in quiz_qn_list:
             quiz_qn_id_list.append(qn_id)
             quiz_qn_ans_list.append(ans)
+            quiz_qn_type_list.append(qn_type)
         qn_id_str = "|".join(map(str, quiz_qn_id_list))
         next_qn_id = quiz_qn_id_list[0]
         answer_str = "|".join(quiz_qn_ans_list)
+        qn_type_str = "|".join(quiz_qn_type_list)
 
         quiz_taker_id = current_user.id
         quiz_temp = Quiztemp(qn_id_str = qn_id_str,
                              answer_str= answer_str,
                              response_str='',
+                             qn_type_str=qn_type_str,
                              next_qn_id=next_qn_id,
                              quiz_taker_id = quiz_taker_id)
 
@@ -231,7 +290,10 @@ def temp_quiz_db(method, response):
         response_str = quiz_temp.response_str
         response_lst = response_str.split('|')
 
-        return qn_id_lst, answer_lst, response_lst
+        qn_type_str = quiz_temp.qn_type_str
+        qn_type_lst = qn_type_str.split('|')
+
+        return qn_id_lst, answer_lst, response_lst, qn_type_lst
 
     # Updating the response that user provided while taking the quiz and next question ID to be displayed
     elif method == 'update-response':
