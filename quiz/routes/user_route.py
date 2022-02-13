@@ -5,7 +5,9 @@ from flask_login import login_required, current_user
 from werkzeug.security import check_password_hash
 from quiz.forms import *
 from quiz.db_models import *
+import re
 
+regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
 accepted_user_roles = ['creator','admin','normal-user']
 
 # Delete an existing User from list
@@ -37,15 +39,14 @@ def update(id):
         name_to_update.name = request.form['name']
         name_to_update.username = request.form['username']
         name_to_update.email = request.form['email']
+        valid_email = isValid(name_to_update.email)
         name_to_update.role = request.form['role']
-        if name_to_update.role.lower() in accepted_user_roles:
+        if name_to_update.role.lower() in accepted_user_roles and valid_email:
             try:
                 db.session.commit()
                 flash('User Updated successfully')
-                return render_template('update.html',
-                                       form=form,
-                                       name_to_update = name_to_update,
-                                       id = id)
+                return render_template('dashboard.html',
+                                       our_users='')
             except:
                 flash('Error in Updating the records!')
                 return render_template('update.html',
@@ -53,7 +54,10 @@ def update(id):
                                        name_to_update = name_to_update,
                                        id =id)
         else:
-            flash(f'User cant be updated ! User role selected invalid. Select user role from {accepted_user_roles}')
+            if not valid_email:
+                flash(f'User cant be updated ! Email given {name_to_update.email} is not valid. Please give valid email.')
+            else:
+                flash(f'User cant be updated ! User role selected invalid. Select user role from {accepted_user_roles}')
             return render_template('update.html',
                                    form=form,
                                    name_to_update=name_to_update,
@@ -91,13 +95,25 @@ def add_user():
             form.role.data = ''
             form.password_hash.data = ''
             flash(f" Registered Successfully as a {role_user}")
+            return render_template("add_user.html",
+                                   form=form,
+                                   name=name,
+                                   user_roles=accepted_user_roles)
         else:
             flash(f"Unable to register. User with {form.email.data} already exists")
 
+
+    flash(f"Please ensure that all the required fields are filled correctly")
     return render_template("add_user.html",
                            form = form,
                            name = name,
                            user_roles = accepted_user_roles)
+
+def isValid(email):
+    if re.fullmatch(regex, email):
+      return 1
+    else:
+      return 0
 
 
 

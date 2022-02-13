@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
-from wtforms.validators import DataRequired, EqualTo
+from wtforms.validators import DataRequired, EqualTo, Email
 from flask_ckeditor import CKEditorField
 from flask_wtf.file import FileField, FileAllowed
 
@@ -12,13 +12,13 @@ class LoginForm(FlaskForm):
 
 # Create a Form class that can feed our db for users registered
 class UserForm(FlaskForm):
-    name = StringField("Name", validators = [DataRequired()])
-    username = StringField("Username", validators = [DataRequired()])
-    email = StringField("Email", validators=[DataRequired()])
-    role = StringField("User Role   ",  validators=[DataRequired()])
-    password_hash = PasswordField('Password', validators=[DataRequired(),
+    name = StringField("Name*", validators = [DataRequired()])
+    username = StringField("Username*", validators = [DataRequired()])
+    email = StringField("Email*(xxx@yzmail.com)", validators=[DataRequired(),Email()])
+    role = StringField("User Role ( Please write to a1@gmail.com for admin/creator access )",  validators=[DataRequired()])
+    password_hash = PasswordField('Password*', validators=[DataRequired(),
                                                           EqualTo('password_hash2', message='Passwords must match !')])
-    password_hash2 = PasswordField('Confirm Password', validators=[DataRequired()])
+    password_hash2 = PasswordField('Confirm Password*', validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 # Create a Form class for password
