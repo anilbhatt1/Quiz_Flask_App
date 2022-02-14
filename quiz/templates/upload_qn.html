@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message | safe }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+    {% endfor %}
+
+    <h1> Upload Questions </h1><br/>
+
+    <div class="shadow-none p-3 mb-5 bg-light rounded">
+         <form method="POST" enctype="multipart/form-data">
+              <div class="form-group">
+                   {{form.hidden_tag()}}
+                   {{ form.uploaded_file.label }}
+                   {{ form.uploaded_file(class="form-control-file") }}
+                   <em> Allowed Formats - txt </em>
+                   {% if form.uploaded_file.errors %}
+                        {% for error in form.uploaded_file.errors %}
+                             <span class="text-danger">{{error}}</span><br>
+                        {% endfor %}
+                   {% endif %}
+                   <br/><br/>
+                   {{ form.submit(class="btn btn-secondary") }}
+              </div>
+         </form>
+    </div>
+{% endblock %}

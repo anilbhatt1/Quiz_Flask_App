@@ -461,10 +461,41 @@ def save_to_feedback_db(fb_qn_lst, fb_response_lst):
 def create_qn_string(var_dict, qn_var_names, sep):
      qn_string = ''
      for qn_key in qn_var_names:
-         qn_element_non_html = remove_html_tags(str(var_dict[qn_key]))  # Removes html tag
-         qn_element_strip = regex.sub("", qn_element_non_html).strip()  # Removes \n\r\t
-         qn_string += sep
-         qn_string += qn_element_strip
+         if qn_key == 'id':
+             qn_string = str(var_dict[qn_key])
+         else:
+             qn_element_non_html = remove_html_tags(str(var_dict[qn_key]))  # Removes html tag
+             qn_element_strip = regex.sub("", qn_element_non_html).strip()  # Removes \n\r\t
+             qn_string += sep
+             qn_string += qn_element_strip
      return qn_string
+
+# Create a list with questions which will be written to 'questions.txt' file. This file will be downloaded by the user
+def create_qn_file_list():
+    qn_download_list = []
+    sep = '|'
+    qn_var_names = ['id', 'question', 'question_type','question_category',
+                    'choice1', 'choice2', 'choice3', 'choice4', 'choice5',
+                    'image1', 'image2', 'image3', 'image4', 'image5',
+                    'answer', 'other_answer1', 'other_answer2','active_flag','date_added','qn_creator_id']
+    questions = Questions.query.order_by(Questions.id)
+
+    for qn in questions:
+        var_dict = vars(qn)
+        qn_string = create_qn_string(var_dict, qn_var_names, sep)
+        qn_download_list.append(qn_string)
+    return qn_download_list
+
+# Function to save the file as part of upload questions.
+def save_qn_file(upload_file):
+
+    user_name = current_user.username
+    timestr = time.strftime("%Y%m%d")
+    file_save_name = str('Uploaded_questions_' + str(user_name) + '_' + str(timestr) + '.txt')
+    upload_file_save_path = os.path.join(app.root_path, 'static/files', file_save_name)
+    upload_file.save(upload_file_save_path)
+    return upload_file_save_path
+
+
 
 

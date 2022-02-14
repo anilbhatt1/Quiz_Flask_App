@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
-from wtforms.validators import DataRequired, EqualTo, Email
+from wtforms.validators import DataRequired, EqualTo, Email, InputRequired
 from flask_ckeditor import CKEditorField
 from flask_wtf.file import FileField, FileAllowed
 
@@ -61,3 +61,8 @@ class OtherAnswerForm2(FlaskForm):
 class SearchForm(FlaskForm):
     searched = StringField("Searched", validators=[DataRequired()])
     submit = SubmitField("Submit")
+
+# Uploadfile form for uploading questions
+class UploadFileForm(FlaskForm):
+    uploaded_file = FileField("Upload questions File", validators=[FileAllowed(['txt']), InputRequired()])
+    submit = SubmitField("Upload")

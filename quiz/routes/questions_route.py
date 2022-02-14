@@ -5,6 +5,7 @@ from flask_ckeditor import  CKEditor, CKEditorField
 from quiz.forms import *
 from quiz.db_models import *
 from quiz.utils import *
+import os
 
 accepted_qn_types = ['Fill-In-The Blank','Fill-In-The Blanks','numeric','text qn - image answer','image qn - text answer','multiple-choice']
 accepted_qn_categories = ['Geography', 'History']
@@ -264,14 +265,61 @@ def download_upload_questions():
 # Download questions
 @app.route('/download_questions')
 def download_questions():
-    # Grab questions from database in the date order they were written
-    questions = Questions.query.order_by(Questions.date_added)
-
-    qn_master_lst = []
-    qn_master_id_lst = []
-    qn_lst = []
-    sep = '|'
-    qn_var_names = ['id', 'question', 'choice1','choice2','choice3','choice4','choice5','answer','other_answer1','other_answer2']
-
+    # Create questions.txt file to be downloaded
     qn_file_path = os.path.join(app.root_path, 'static/files', 'questions.txt')
-    return send_file(qn_file_path,as_attachment=True)
+    qn_file_lst = create_qn_file_list()
+    qn_file = open(qn_file_path, 'w')
+    qn_header = 'id|question|question_type|question_category|choice1|choice2|choice3|choice4|choice5|image1|image2|image3|image4|image5|answer|other_answer1|other_answer2|active_flag|date_added|qn_creator_id'
+    qn_file.write(qn_header + '\n')
+    for item in qn_file_lst:
+        qn_file.write(item + '\n')
+    qn_file.close()
+
+    return send_file(qn_file_path, as_attachment=True)
+
+# Upload questions
+@app.route('/upload_questions', methods=['GET','POST'])
+def upload_questions():
+    # Upload questions.txt file
+    form = UploadFileForm()
+    if form.validate_on_submit():
+        in_file = form.uploaded_file.data
+        uploaded_filename = save_qn_file(in_file)
+        '''
+        Open the file and read it to a list
+        read records one by one
+            check if id is there
+            if id:
+                go to update logic
+            else:
+                go to add logic
+            Update logic validations
+                split the string to various fields based on |
+                if active-flag - yes or spaces
+                    question is having minimum 5 charcaters
+                    question_type is a valid one
+                    question_category is a valid one
+                    if Fill-In-The Blank -> other_answer1
+                    if Fill-In-The Blanks -> other_answer2
+                    if numeric -> float or int
+                    if text qn - image answer -> image1 through image5 have all valid name extensions
+                                              -> images exist with same name in static folder
+                    if image qn - text answer -> image 1 with valid name extensions
+                                              -> image1 exist with same name in static folder
+                    if multiple-choice -> choice1 through choice5 must exist  
+                else
+                    make question inactive as it is
+            Add logic validations
+                Same validations as update
+                Actuive flag will be Y
+                user-id will be current_user
+                ID & date-added automatically taken care
+            Outcome of validations written to a list - including rejected/added/updated
+        Outcome list written to a file with option to download                                    
+        '''
+        flash(f" File Uploaded successfully as {uploaded_filename}")
+    else:
+        flash(form.errors)
+
+    return render_template('upload_qn.html',
+                           form=form)

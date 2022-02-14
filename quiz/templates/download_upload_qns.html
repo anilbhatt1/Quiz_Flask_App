@@ -13,11 +13,11 @@
 
     {% if current_user.role == 'admin' %}
         <div class="shadow-none p-3 mb-5 bg-light rounded">
-            <a href="{{ url_for('download_questions')}}" class="btn btn-outline-secondary btn-sm">Dowload Questions</a>
+            <a href="{{ url_for('download_questions')}}" class="btn btn-outline-secondary btn-sm">Download Questions</a>
         </div>
         <hr><br/>
         <div class="shadow-none p-3 mb-5 bg-light rounded">
-            <h3> Upload Questions </h3><br/>
+            <a href="{{ url_for('upload_questions')}}" class="btn btn-outline-secondary btn-sm">Upload Questions</a>
         </div>
         <hr><br/>
     {% endif %}
