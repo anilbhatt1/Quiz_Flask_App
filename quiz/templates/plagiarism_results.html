@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message | safe }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+    {% endfor %}
+
+
+    <h2> Plagiarism Result </h2><em>(Scale 0-1 with 1 indicating highest level of plagiarism and 0 indicating lowest)</em><br/><br/>
+    <h3>Question ID checked : {{ qn_id }}</h3>
+    <h4><a href="{{url_for('question', id=qn_id)}}"> {{qn.question | safe }} </a></h4><br/>
+
+    {% for qn_id_check, qn_id_db, score, qn_db in plag_scores %}
+        <div class="shadow-none p-3 mb-5 bg-light rounded">
+            <small><strong>Question ID from DB:  </strong>{{ qn_id_db }}<a href="{{url_for('question', id=qn_id_db)}}">    {{qn_db|safe}} </a>
+                   <strong>Plagiarism Score with Question ID - {{qn_id}} : </strong>{{ score|round(4) }}</small><br/><br/>
+        </div>
+        <hr>
+    {% endfor %}
+{% endblock %}

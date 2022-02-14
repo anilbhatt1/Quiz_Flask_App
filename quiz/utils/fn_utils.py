@@ -18,6 +18,7 @@ answer_types = ['image1', 'image2', 'image3', 'image4', 'image5', 'other',
 answer_map_dict = {'image1':1, 'image2':2, 'image3':3, 'image4':4, 'image5':5, 'other':'other',
                    'choice1':1, 'choice2':2, 'choice3':3, 'choice4':4, 'choice5':5,
                    'option1':1, 'option2':2, 'option3':3, 'option4':4, 'option5':5}
+regex = re.compile(r'[\n\r\t]')
 fb_logic = namedtuple('fb_logic', 'fb_qn fb_qn_if_correct fb_qn_if_wrong')
 fb_qn = namedtuple('fb_qn', 'qn_id qn qn_type answers correct_answer')
 fb_qn_dict = {}
@@ -84,7 +85,6 @@ def calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_ls
     score = 0
     total = 0
 
-    regex = re.compile(r'[\n\r\t]')
     for i in range(len(quiz_response_lst)):
         answer = ''
         response = ''
@@ -456,4 +456,15 @@ def save_to_feedback_db(fb_qn_lst, fb_response_lst):
     db.session.commit()
     fb_qn_lst.clear()
     fb_response_lst.clear()
+
+# Create a string separated by '|' for the question supplied in format - id|question|choice1|....
+def create_qn_string(var_dict, qn_var_names, sep):
+     qn_string = ''
+     for qn_key in qn_var_names:
+         qn_element_non_html = remove_html_tags(str(var_dict[qn_key]))  # Removes html tag
+         qn_element_strip = regex.sub("", qn_element_non_html).strip()  # Removes \n\r\t
+         qn_string += sep
+         qn_string += qn_element_strip
+     return qn_string
+
 

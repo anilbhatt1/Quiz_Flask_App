@@ -1,5 +1,5 @@
 from quiz import app, db
-from flask import Flask, render_template, flash, redirect, url_for
+from flask import Flask, render_template, flash, redirect, url_for, send_file
 from flask_login import login_required, current_user
 from flask_ckeditor import  CKEditor, CKEditorField
 from quiz.forms import *
@@ -252,3 +252,26 @@ def questions():
     questions = Questions.query.order_by(Questions.date_added)
     return render_template("questions.html",
                            questions=questions)
+
+# Download questions and upload questions landing page
+@app.route('/download-upload-qns')
+@login_required # Don't allow to download/upload questions unless logged-in
+def download_upload_questions():
+    # Grab questions from database in the date order they were written
+    return render_template("download_upload_qns.html",
+                           questions=questions)
+
+# Download questions
+@app.route('/download_questions')
+def download_questions():
+    # Grab questions from database in the date order they were written
+    questions = Questions.query.order_by(Questions.date_added)
+
+    qn_master_lst = []
+    qn_master_id_lst = []
+    qn_lst = []
+    sep = '|'
+    qn_var_names = ['id', 'question', 'choice1','choice2','choice3','choice4','choice5','answer','other_answer1','other_answer2']
+
+    qn_file_path = os.path.join(app.root_path, 'static/files', 'questions.txt')
+    return send_file(qn_file_path,as_attachment=True)

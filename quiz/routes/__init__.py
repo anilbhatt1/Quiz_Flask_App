@@ -5,3 +5,4 @@ from .questions_route import *
 from .quiz_run_route import *
 from .quiz_logs_route import *
 from .search_route import *
+from .plagiarism_route import *

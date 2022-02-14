@@ -38,6 +38,7 @@ def start_quiz():
                                     quiz_total=quiz_total,)
         else:
             question = Questions.query.filter_by(id=next_qn_id).first()
+            print(vars(question))
             image_choice_list = [('A', question.image1),
                                  ('B', question.image2),
                                  ('C', question.image3),
