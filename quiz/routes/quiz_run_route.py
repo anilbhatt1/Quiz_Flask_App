@@ -31,10 +31,9 @@ def start_quiz():
                user_response = request.form['options']  # For all the remaining questions it should be 'options' coming back from form
            next_qn_id = temp_quiz_db('update-response', user_response)
         else:  # While coming for first time there wont be any data in request.form.keys. Hence fetch qn-id to be displayed for quiz.
-           quiz_timer = timer()
-           quiz_timer.start_time = time.perf_counter()
-           print('quiz_timer.start_time :', quiz_timer.start_time)
            next_qn_id = temp_quiz_db('read-next-qn-id', '')
+           quiz_timer = timer()
+           quiz_timer.start_time = time.perf_counter()  #
 
         if next_qn_id == 9999:  # Upon end-of questions, next_qn_id will be updated with 9999
             quiz_question_id_lst, quiz_answer_lst, quiz_response_lst, quiz_qn_type_lst = temp_quiz_db('read', '')
@@ -46,10 +45,6 @@ def start_quiz():
                                     quiz_score=quiz_score,
                                     quiz_total=quiz_total,)
         else:
-            if globals().get("quiz_timer"):
-                print('Start time :', quiz_timer.start_time)
-            else:
-                print('Rechecking start time:')
             question = Questions.query.filter_by(id=next_qn_id).first()
             image_choice_list = [('A', question.image1),
                                  ('B', question.image2),
@@ -63,11 +58,14 @@ def start_quiz():
             else:
                 oth_form = OtherAnswerForm()
                 oth_form.oth_answer.data = ''
+            elapsed_time = int(time.perf_counter() - quiz_timer.start_time)
+            remaining_time = quiz_time - elapsed_time
 
             return render_template("quiz_questions.html",
                                     image_choices=image_choice_list,
                                     question=question,
-                                    oth_form=oth_form,)
+                                    oth_form=oth_form,
+                                    rem_time=remaining_time)
 
     elif request.method == 'GET':   # Initial flow reaches here
         _ = temp_quiz_db('delete', '')   # Cleaning-up temp DB record incase if any past records for same user is present
