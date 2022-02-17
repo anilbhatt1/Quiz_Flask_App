@@ -281,7 +281,6 @@ def download_questions():
 @app.route('/upload_questions', methods=['GET','POST'])
 def upload_questions():
     # upload questions.txt file
-    global response_file_path
     form = UploadFileForm()
     if form.validate_on_submit():
         in_file = form.uploaded_file.data
@@ -305,5 +304,7 @@ def upload_questions():
 @app.route('/download_upload_status')
 def download_upload_status():
 
-    response_download_path = response_file_path
+    response_file_name = str('Uploaded_questions_response_' + str(current_user.username) + '.txt')
+    file_saved_path = os.path.join(app.root_path, 'static/files/upload_response', response_file_name)
+    response_download_path = file_saved_path
     return send_file(response_download_path, as_attachment=True)
