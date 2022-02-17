@@ -26,9 +26,9 @@ def start_quiz():
                user_response = oth_form2.oth_answer1.data + '*' + oth_form2.oth_answer2.data
            else:
                user_response = request.form['options']  # For all the remaining questions it should be 'options' coming back from form
-           next_qn_id, quiz_start_time = temp_quiz_db('update-response', user_response)
+           next_qn_id, quiz_start_time, quiz_qns_displayed = temp_quiz_db('update-response', user_response)
         else:  # While coming for first time there wont be any data in request.form.keys. Hence fetch qn-id to be displayed for quiz.
-           next_qn_id, quiz_start_time = temp_quiz_db('read-next-qn-id', '')
+           next_qn_id, quiz_start_time, quiz_qns_displayed = temp_quiz_db('read-next-qn-id', '')
 
         elapsed_time = int(time.perf_counter() - quiz_start_time)
         remaining_time = quiz_time - elapsed_time
@@ -61,7 +61,9 @@ def start_quiz():
                                     image_choices=image_choice_list,
                                     question=question,
                                     oth_form=oth_form,
-                                    rem_time=remaining_time)
+                                    rem_time=remaining_time,
+                                    qns_num=quiz_qns_displayed,
+                                    tot_qns=num_quiz_questions)
 
     elif request.method == 'GET':   # Initial flow reaches here
         _ = temp_quiz_db('delete', '')   # Cleaning-up temp DB record incase if any past records for same user is present

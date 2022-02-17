@@ -10,6 +10,7 @@
         ></progress>
         <div class="shadow-none p-3 mb-5 bg-light rounded">
             <form method="POST">
+            <strong>Question {{qns_num}} of {{tot_qns}}</strong><br><br>
             <strong>{{question.question | safe }}</strong><br><br>
             {% if question.question_type == 'text qn - image answer' %}
                 {% for item, image in image_choices %}
