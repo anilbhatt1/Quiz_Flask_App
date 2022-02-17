@@ -259,11 +259,13 @@ def temp_quiz_db(method, response):
         qn_type_str = "|".join(quiz_qn_type_list)
 
         quiz_taker_id = current_user.id
+        quiz_start_time = time.perf_counter()
         quiz_temp = Quiztemp(qn_id_str = qn_id_str,
                              answer_str= answer_str,
                              response_str='',
                              qn_type_str=qn_type_str,
                              next_qn_id=next_qn_id,
+                             quiz_start_time=quiz_start_time,
                              quiz_taker_id = quiz_taker_id)
 
         # Add the values to database
@@ -274,7 +276,7 @@ def temp_quiz_db(method, response):
     elif method == 'read-next-qn-id':
         quiz_temp = Quiztemp.query.filter_by(quiz_taker_id=current_user.id).first()
 
-        return quiz_temp.next_qn_id
+        return quiz_temp.next_qn_id, quiz_temp.quiz_start_time
 
     # Fetching the question_id_list used in quiz, their corresponding answers and user responses
     elif method == 'read':
@@ -292,7 +294,7 @@ def temp_quiz_db(method, response):
         qn_type_str = quiz_temp.qn_type_str
         qn_type_lst = qn_type_str.split('|')
 
-        return qn_id_lst, answer_lst, response_lst, qn_type_lst
+        return qn_id_lst, answer_lst, response_lst, qn_type_lst, quiz_temp.quiz_start_time
 
     # Updating the response that user provided while taking the quiz and next question ID to be displayed
     elif method == 'update-response':
@@ -318,7 +320,7 @@ def temp_quiz_db(method, response):
 
         # Updating the database record
         db.session.commit()
-        return next_qn_id
+        return next_qn_id, quiz_temp.quiz_start_time
 
     # Deleting the temp record belonging toe the current user-id
     elif method == 'delete':
