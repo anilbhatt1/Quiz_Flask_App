@@ -77,7 +77,7 @@ def add_user():
         user = Users.query.filter_by(email=form.email.data).first()  #This shouldn't return any result as email need to be unique
         if user is None:   #if user is None, then execute logic to add new user
             hashed_pwd = generate_password_hash(form.password_hash.data, 'sha256') # We are passing password entered in form to be converted to hash
-            if form.email.data == 'a1@gmail.com' or form.email.data == 'r1@gmail.com':
+            if form.email.data == 'a1@gmail.com' or form.email.data == 'r1@gmail.com' or form.email.data == 'tsai@gmail.com':
                 role_user = form.role.data.lower()
             else:
                 role_user = 'normal-user'

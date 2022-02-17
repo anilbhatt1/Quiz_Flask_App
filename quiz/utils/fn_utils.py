@@ -8,7 +8,7 @@ from collections import namedtuple
 from flask_login import login_required, current_user
 from fractions import Fraction
 
-num_quiz_questions = 6
+num_quiz_questions = 15  # Please ensure to change this variable value in quiz_run_route.py as well
 qn_answer = ''
 quiz_score_lst = []
 quiz_possible_score_lst = []
