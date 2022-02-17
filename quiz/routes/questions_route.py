@@ -8,7 +8,7 @@ from quiz.utils import *
 import os
 
 accepted_qn_types = ['Fill-In-The Blank','Fill-In-The Blanks','numeric','text qn - image answer','image qn - text answer','multiple-choice']
-accepted_qn_categories = ['Geography', 'History']
+accepted_qn_categories = ['Geography', 'History', 'Maths']
 answer_types = ['image1', 'image2', 'image3', 'image4', 'image5', 'other',
                 'choice1', 'choice2', 'choice3', 'choice4', 'choice5']
 
@@ -277,49 +277,33 @@ def download_questions():
 
     return send_file(qn_file_path, as_attachment=True)
 
-# Upload questions
+# upload questions
 @app.route('/upload_questions', methods=['GET','POST'])
 def upload_questions():
-    # Upload questions.txt file
+    # upload questions.txt file
+    global response_file_path
     form = UploadFileForm()
     if form.validate_on_submit():
         in_file = form.uploaded_file.data
         uploaded_filename = save_qn_file(in_file)
-        '''
-        Open the file and read it to a list
-        read records one by one
-            check if id is there
-            if id:
-                go to update logic
-            else:
-                go to add logic
-            Update logic validations
-                split the string to various fields based on |
-                if active-flag - yes or spaces
-                    question is having minimum 5 charcaters
-                    question_type is a valid one
-                    question_category is a valid one
-                    if Fill-In-The Blank -> other_answer1
-                    if Fill-In-The Blanks -> other_answer2
-                    if numeric -> float or int
-                    if text qn - image answer -> image1 through image5 have all valid name extensions
-                                              -> images exist with same name in static folder
-                    if image qn - text answer -> image 1 with valid name extensions
-                                              -> image1 exist with same name in static folder
-                    if multiple-choice -> choice1 through choice5 must exist  
-                else
-                    make question inactive as it is
-            Add logic validations
-                Same validations as update
-                Actuive flag will be Y
-                user-id will be current_user
-                ID & date-added automatically taken care
-            Outcome of validations written to a list - including rejected/added/updated
-        Outcome list written to a file with option to download                                    
-        '''
-        flash(f" File Uploaded successfully as {uploaded_filename}")
-    else:
-        flash(form.errors)
+        response_file_path, upload_status_list = upload_file_process(uploaded_filename)
+        total_records = len(upload_status_list)
+        success_records = sum(upload_status_list)
+        failed_records = total_records - success_records
+        flash(f" File Upload status - Out of {total_records} records, {success_records} successfully uploaded while {failed_records} failed.")
+        return render_template('upload_qn.html',
+                               form=form,
+                               flag='after-upload',
+                               response_file_path=response_file_path,
+                               upload_status_list=upload_status_list)
 
     return render_template('upload_qn.html',
-                           form=form)
+                           form=form,
+                           flag='before-upload')
+
+# Download Upload status
+@app.route('/download_upload_status')
+def download_upload_status():
+
+    response_download_path = response_file_path
+    return send_file(response_download_path, as_attachment=True)

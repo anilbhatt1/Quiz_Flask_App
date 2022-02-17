@@ -37,11 +37,11 @@ class QuestionForm(FlaskForm):
     choice3 = StringField("Answer Choice-3 ")
     choice4 = StringField("Answer Choice-4 ")
     choice5 = StringField("Answer Choice-5 ")
-    image1 = FileField(label=" Upload Image-1 (if applicable) ",validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
-    image2 = FileField(label=" Upload Image-2 (if applicable) ",validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
-    image3 = FileField(label=" Upload Image-3 (if applicable) ",validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
-    image4 = FileField(label=" Upload Image-4 (if applicable) ",validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
-    image5 = FileField(label=" Upload Image-5 (if applicable) ",validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
+    image1 = FileField(label=" upload Image-1 (if applicable) ",validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
+    image2 = FileField(label=" upload Image-2 (if applicable) ",validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
+    image3 = FileField(label=" upload Image-3 (if applicable) ",validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
+    image4 = FileField(label=" upload Image-4 (if applicable) ",validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
+    image5 = FileField(label=" upload Image-5 (if applicable) ",validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
     answer = StringField('Answer ', validators=[DataRequired()])
     other_answer1 = CKEditorField("Other Answer1 - Fill in if you chose Other as Answer")
     other_answer2 = CKEditorField("Other Answer2 - Fill in if you chose Other as Answer")
@@ -64,5 +64,5 @@ class SearchForm(FlaskForm):
 
 # Uploadfile form for uploading questions
 class UploadFileForm(FlaskForm):
-    uploaded_file = FileField("Upload questions File", validators=[FileAllowed(['txt']), InputRequired()])
-    submit = SubmitField("Upload")
+    uploaded_file = FileField("upload questions File", validators=[FileAllowed(['txt']), InputRequired()])
+    submit = SubmitField("upload")

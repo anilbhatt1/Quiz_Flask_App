@@ -1,0 +1,3 @@
+id|question|question_type|question_category|choice1|choice2|choice3|choice4|choice5|image1|image2|image3|image4|image5|answer|other_answer1|other_answer2|active_flag|date_added|qn_creator_id
+1|Mount Everest is located in which country ?|Fill-In-The Blank|Geography||||||default.jpg|default.jpg|default.jpg|default.jpg|default.jpg|other|Nepal||Active|2022-02-11 13:28:01.586145|1
+

@@ -5,7 +5,6 @@ from quiz.routes import *
 from quiz.db_models import *
 from pandas import read_excel
 from collections import namedtuple
-import re
 from flask_login import login_required, current_user
 from fractions import Fraction
 
@@ -486,15 +485,7 @@ def create_qn_file_list():
         qn_download_list.append(qn_string)
     return qn_download_list
 
-# Function to save the file as part of upload questions.
-def save_qn_file(upload_file):
 
-    user_name = current_user.username
-    timestr = time.strftime("%Y%m%d")
-    file_save_name = str('Uploaded_questions_' + str(user_name) + '_' + str(timestr) + '.txt')
-    upload_file_save_path = os.path.join(app.root_path, 'static/files', file_save_name)
-    upload_file.save(upload_file_save_path)
-    return upload_file_save_path
 
 
 

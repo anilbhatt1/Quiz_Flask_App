@@ -1,0 +1,4 @@
+id|question|question_type|question_category|choice1|choice2|choice3|choice4|choice5|image1|image2|image3|image4|image5|answer|other_answer1|other_answer2|active_flag|date_added|qn_creator_id
+7|Hiroshima and ___ , 2 cities were atom bomb was dropped during 2nd world war are located in country of ____ ?|Fill-In-The Blanks|Geography||||||default.jpg|default.jpg|default.jpg|default.jpg|default.jpg|other|Nagasaki|Japan|Active|2022-02-16 12:26:37.506608|1
+8|Hiroshima and ___ , TWO cities were atom bomb was dropped during 2nd world war are located in country of ____ ?|Fill-In-The Blanks|Geography||||||default.jpg|default.jpg|default.jpg|default.jpg|default.jpg|other|nAgAsAKI|japan|Activated|2022-02-16 13:04:40.324150|1
+

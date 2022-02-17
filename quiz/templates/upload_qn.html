@@ -26,6 +26,14 @@
                    <br/><br/>
                    {{ form.submit(class="btn btn-secondary") }}
               </div>
+
+             {% if flag == 'after-upload' %}
+                <br/>
+                <div class="shadow-none p-3 mb-5 bg-light rounded">
+                    <a href="{{ url_for('download_upload_status')}}" class="btn btn-outline-secondary btn-sm" align="left">Download Status Report</a>
+                </div>
+                <hr><br/>
+             {% endif %}
          </form>
     </div>
 {% endblock %}
