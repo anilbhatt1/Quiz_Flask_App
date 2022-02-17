@@ -1,13 +1,14 @@
 from quiz import app, db
 import time
-from flask import Flask, render_template, flash, request, redirect, url_for, g as app_ctx
+from flask import Flask, render_template, flash, request, redirect, url_for
 from flask_login import login_required, current_user
 from quiz.forms import *
 from quiz.db_models import *
 from quiz.utils import *
 
 user_response= ''
-quiz_time = 30
+num_quiz_questions = 6
+quiz_time = num_quiz_questions * 15  # 1 minute per question
 
 # Start the quiz and get questions one-by-one
 @app.route('/start-quiz', methods=['GET','POST'])
@@ -32,19 +33,15 @@ def start_quiz():
         elapsed_time = int(time.perf_counter() - quiz_start_time)
         remaining_time = quiz_time - elapsed_time
 
-        if next_qn_id == 9999 or remaining_time < 2:  # Upon end-of questions, next_qn_id will be updated with 9999
-            if next_qn_id == 9999:
-                quiz_question_id_lst, quiz_answer_lst, quiz_response_lst, quiz_qn_type_lst, quiz_start_time = temp_quiz_db('read', '')
-                quiz_score, quiz_total = calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst,
+        if next_qn_id == 9999:  # Upon end-of questions, next_qn_id will be updated with 9999
+            quiz_question_id_lst, quiz_answer_lst, quiz_response_lst, quiz_qn_type_lst, quiz_start_time = temp_quiz_db('read', '')
+            quiz_score, quiz_total = calc_save_quiz_score(quiz_question_id_lst, quiz_answer_lst, quiz_response_lst,
                                                               quiz_qn_type_lst, current_user.id)
-                _ = temp_quiz_db('delete', '')
-                flash(f'Quiz completed successfully ! ')
-                return render_template("quiz_score.html",
+            _ = temp_quiz_db('delete', '')
+            flash(f'Quiz completed successfully ! ')
+            return render_template("quiz_score.html",
                                     quiz_score=quiz_score,
                                     quiz_total=quiz_total,)
-            else:
-                _ = temp_quiz_db('delete', '')
-                return render_template("quiz_timeout.html")
         else:
             question = Questions.query.filter_by(id=next_qn_id).first()
             image_choice_list = [('A', question.image1),
@@ -70,6 +67,11 @@ def start_quiz():
         _ = temp_quiz_db('delete', '')   # Cleaning-up temp DB record incase if any past records for same user is present
         temp_quiz_db('create', '')  # Creating a temp record with qn IDs to be used in quiz, their answers & 1st qn id
         return render_template("start_quiz.html")
+
+# Timeout the quiz upon exhausting available time
+@app.route('/quiz_timeout', methods=['GET','POST'])
+def quiz_timeout():
+    return render_template("quiz_timeout.html")
 
 
 

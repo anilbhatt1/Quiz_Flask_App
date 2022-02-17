@@ -1,8 +1,13 @@
 {% extends 'base_quiz.html' %}
 
 {% block content %}
-        <h4> Time Remaining : {{ rem_time }} secs </h4>
-
+        <span class='timer' id='timer'> {{ rem_time }}s</span>
+        <progress
+            max={{ rem_time }}
+            value={{ rem_time }}
+            class='progress progress--rest'
+            id='progressBar'
+        ></progress>
         <div class="shadow-none p-3 mb-5 bg-light rounded">
             <form method="POST">
             <strong>{{question.question | safe }}</strong><br><br>
@@ -51,5 +56,23 @@
             <input type="submit" value="Next">
             </form>
         </div>
+
+        <script type="application/javascript">
+            const timerElement = document.getElementById("timer");
+            const progressBar = document.getElementById("progressBar");
+
+            let timerCounter = progressBar.max;
+
+            const interval = setInterval(() => {
+                if (timerCounter <= 1) {
+                    window.location.href = "/quiz_timeout";
+                    clearInterval(interval);
+                    }
+
+                    timerCounter = timerCounter - 1;
+                    timerElement.innerText = Math.floor(timerCounter / 60) + 'm ' + timerCounter % 60 + 's';
+                    progressBar.value = timerCounter;
+                }, 1000);
+        </script>
 {% endblock %}
 
