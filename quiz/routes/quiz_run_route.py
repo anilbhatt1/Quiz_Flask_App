@@ -1,6 +1,6 @@
 from quiz import app, db
 import time
-from flask import Flask, render_template, flash, request, redirect, url_for
+from flask import Flask, render_template, flash, request, redirect, url_for, g as app_ctx
 from flask_login import login_required, current_user
 from quiz.forms import *
 from quiz.db_models import *
@@ -9,12 +9,16 @@ from quiz.utils import *
 user_response= ''
 quiz_time = 30
 
+class timer():
+    def __init__(self):
+        self.start_time = 0
+
 # Start the quiz and get questions one-by-one
 @app.route('/start-quiz', methods=['GET','POST'])
 @login_required # Don't allow to take quiz unless logged-in
 def start_quiz():
 
-    global user_response, end, start
+    global user_response, quiz_timer
     if request.method == 'POST':
         oth_form = OtherAnswerForm()  # This form is to accept answer for 'Fill In the Blank' question-type
         oth_form2 = OtherAnswerForm2() # This form is to accept answer for 'Fill In the BlankS' question-type
@@ -26,14 +30,11 @@ def start_quiz():
            else:
                user_response = request.form['options']  # For all the remaining questions it should be 'options' coming back from form
            next_qn_id = temp_quiz_db('update-response', user_response)
-           end = time.perf_counter()
         else:  # While coming for first time there wont be any data in request.form.keys. Hence fetch qn-id to be displayed for quiz.
+           quiz_timer = timer()
+           quiz_timer.start_time = time.perf_counter()
+           print('quiz_timer.start_time :', quiz_timer.start_time)
            next_qn_id = temp_quiz_db('read-next-qn-id', '')
-
-        if 'end' in globals():
-            print('end-start:', end, '|', start, '|', end - start)
-        else:
-            'end not captured'
 
         if next_qn_id == 9999:  # Upon end-of questions, next_qn_id will be updated with 9999
             quiz_question_id_lst, quiz_answer_lst, quiz_response_lst, quiz_qn_type_lst = temp_quiz_db('read', '')
@@ -45,7 +46,10 @@ def start_quiz():
                                     quiz_score=quiz_score,
                                     quiz_total=quiz_total,)
         else:
-            start = time.perf_counter()
+            if globals().get("quiz_timer"):
+                print('Start time :', quiz_timer.start_time)
+            else:
+                print('Rechecking start time:')
             question = Questions.query.filter_by(id=next_qn_id).first()
             image_choice_list = [('A', question.image1),
                                  ('B', question.image2),
