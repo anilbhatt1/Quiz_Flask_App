@@ -8,7 +8,7 @@ from quiz.utils import *
 
 user_response= ''
 num_quiz_questions = 15   # Please ensure to change this variable value in fn_utils.py as well
-quiz_time = num_quiz_questions * 10  # 1 minute per question
+quiz_time = num_quiz_questions * 60  # 1 minute per question
 
 # Start the quiz and get questions one-by-one
 @app.route('/start-quiz', methods=['GET','POST'])
