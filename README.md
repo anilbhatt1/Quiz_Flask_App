@@ -17,3 +17,4 @@
 ![File_Struct](https://github.com/anilbhatt1/Quiz_Flask_App/blob/master/Directory_Structure.png)
 
 - **Brief explanation of modules **
+    - db_models
