@@ -21,6 +21,10 @@
 
 ![File_Struct](https://github.com/anilbhatt1/Quiz_Flask_App/blob/master/Directory_Structure.png)
 
+- Login credentials to take the quiz as a normal user 
+    - username : d1 
+    - password : d1 
+
 - **Brief explanation of Relevant modules**
     - quiz/db_models
         - __init__.py -> Import statement for db_models.py to work properly in modularized fashion
@@ -116,4 +120,6 @@
         - Necessary packages required to run this app
     - users.db
         - SQLITE database having various tables used in the app -  Users, Questions, Quizlogs, Feedbacks etc.
+        
+    
     
