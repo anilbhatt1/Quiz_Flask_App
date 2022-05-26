@@ -1,7 +1,15 @@
 ## Test-Your-Know-how App
 
 - **Heroku Link** : https://test-your-know-how.herokuapp.com/
+- **Features present in app**
+
+![Features](https://github.com/anilbhatt1/Quiz_Flask_App/blob/master/Test_your_know_how_features.png)
+    
 - **Youtube Link explaining the features (13 mins video)** : https://youtu.be/yGLW6H00ojY
+- **Short demo of app**
+
+![Features](https://github.com/anilbhatt1/Quiz_Flask_App/blob/master/Video.mp4)
+
 - **Free Youtube References** that helped me develop this app
 
   - Flask Fridays by Codemy.com https://www.youtube.com/watch?v=0Qxtt4veJIc&list=PLCC34OHNcOtolz2Vd9ZSeSXWc8Bq23yEz&ab_channel=Codemy.com
