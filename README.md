@@ -115,5 +115,5 @@
     - requirements.txt
         - Necessary packages required to run this app
     - users.db
-        - SQLLITE database having various tables used in the app -  Users, Questions, Quizlogs, Feedbacks etc.
+        - SQLITE database having various tables used in the app -  Users, Questions, Quizlogs, Feedbacks etc.
     
