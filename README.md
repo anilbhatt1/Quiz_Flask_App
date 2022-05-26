@@ -5,10 +5,7 @@
 
 ![Features](https://github.com/anilbhatt1/Quiz_Flask_App/blob/master/Test_your_know_how_features.png)
     
-- **Youtube Link explaining the features (13 mins video)** : https://youtu.be/yGLW6H00ojY
-- **Short demo of app**
-
-![Features](https://github.com/anilbhatt1/Quiz_Flask_App/blob/master/Video.mp4)
+- **Short Demo - Youtube Link explaining the features (13 mins video)** : https://youtu.be/yGLW6H00ojY
 
 - **Free Youtube References** that helped me develop this app
 
